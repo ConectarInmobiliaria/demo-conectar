@@ -1,17 +1,16 @@
 'use client';
-// components/LoginForm.js
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  // Si necesitas leer query params:
-  // const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,15 +23,11 @@ export default function LoginForm() {
     if (res?.error) {
       setErrorMsg(res.error);
     } else {
-      // redirigir al dashboard o callbackUrl
-      router.push('/dashboard');
+      router.push(callbackUrl);
     }
   };
 
-  const handleGoogle = async () => {
-    // callbackUrl puede venir de searchParams, p.ej. searchParams.get('callbackUrl')
-    await signIn('google', { callbackUrl: '/dashboard' });
-  };
+  const handleGoogle = () => signIn('google', { callbackUrl });
 
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
@@ -61,15 +56,9 @@ export default function LoginForm() {
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary w-100">Entrar</button>
-
-        {/* Mostrar botón Google solo si variables env estén definidas */}
-        {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET && (
-          <button
-            type="button"
-            onClick={handleGoogle}
-            className="btn btn-outline-secondary w-100 mt-2"
-          >
+        <button type="submit" className="btn btn-primary w-100 mb-2">Entrar</button>
+        {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+          <button type="button" onClick={handleGoogle} className="btn btn-outline-secondary w-100">
             Entrar con Google
           </button>
         )}

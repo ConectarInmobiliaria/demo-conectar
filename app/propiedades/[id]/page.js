@@ -1,77 +1,120 @@
 // app/propiedades/[id]/page.js
 import Image from 'next/image';
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import PropertyInquiryForm from '@/components/PropertyInquiryForm';
+import { FadeInSectionClient } from '@/components/Motion/FadeInSectionClient';
+import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
 
-export const dynamic = 'force-dynamic'; // Forzar siempre dinámico, por datos en BD
+export const dynamic = 'force-dynamic';
 
-export default async function PropiedadPage({ params }) {
-  // Esperar params antes de usarlo:
-  const { id } = await params; 
-  const propId = parseInt(id, 10);
-  let prop = null;
-  try {
-    prop = await prisma.property.findUnique({
-      where: { id: propId },
-      include: { category: true, creator: true },
-    });
-  } catch (err) {
-    console.error('Error en PropiedadPage prisma.property.findUnique:', err);
-  }
+export default async function PropertyDetailPage({ params }) {
+  const id = parseInt(params.id, 10);
+  const prop = await prisma.property.findUnique({
+    where: { id },
+    include: { category: true, creator: true },
+  });
   if (!prop) {
-    return (
-      <section className="container py-5">
-        <p>Propiedad no encontrada.</p>
-      </section>
-    );
+    return <p className="container py-5">Propiedad no encontrada.</p>;
   }
+
+  // Todas las imágenes: la principal + otras
+  const images = [
+    ...(prop.imageUrl ? [prop.imageUrl] : []),
+    ...(Array.isArray(prop.otherImageUrls) ? prop.otherImageUrls : []),
+  ];
+
+  // Texto prellenado para WhatsApp
+  const whatsappText = encodeURIComponent(
+    `Hola, estoy interesado en la propiedad "${prop.title}" (ID: ${prop.id}).\n` +
+    `Link: ${process.env.NEXT_PUBLIC_SITE_URL}/propiedades/${prop.id}`
+  );
+  const whatsappUrl = `https://wa.me/5493764579547?text=${whatsappText}`;
+
   return (
-    <section className="container py-5">
-      <div className="row">
-        <div className="col-lg-8">
-          {prop.imageUrl ? (
-            <Image
-              src={prop.imageUrl}
-              alt={prop.title}
-              width={800}
-              height={500}
-              className="img-fluid rounded mb-4"
-              style={{ objectFit: 'cover' }}
-            />
-          ) : (
-            <div
-              className="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-4"
-              style={{ height: '500px' }}
-            >
-              Sin imagen
-            </div>
+    <div className="container py-5">
+      {/* Título */}
+      <FadeInHeadingClient as="h1" className="mb-4 text-primary">
+        {prop.title}
+      </FadeInHeadingClient>
+
+      {/* Carrusel de imágenes */}
+      {images.length > 0 && (
+        <div id={`carousel-${prop.id}`} className="carousel slide mb-4" data-bs-ride="carousel">
+          <div className="carousel-inner">
+            {images.map((src, idx) => (
+              <div
+                key={idx}
+                className={`carousel-item${idx === 0 ? ' active' : ''}`}
+                style={{ height: '400px' }}
+              >
+                <Image
+                  src={src}
+                  alt={`${prop.title} imagen ${idx + 1}`}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  className="d-block w-100"
+                />
+              </div>
+            ))}
+          </div>
+          {images.length > 1 && (
+            <>
+              <button
+                className="carousel-control-prev"
+                type="button"
+                data-bs-target={`#carousel-${prop.id}`}
+                data-bs-slide="prev"
+              >
+                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Anterior</span>
+              </button>
+              <button
+                className="carousel-control-next"
+                type="button"
+                data-bs-target={`#carousel-${prop.id}`}
+                data-bs-slide="next"
+              >
+                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Siguiente</span>
+              </button>
+            </>
           )}
-          <h2>{prop.title}</h2>
-          <p>{prop.description}</p>
-          <ul className="list-group list-group-flush mb-4">
-            <li className="list-group-item">
-              <strong>Precio:</strong> ${prop.price}
-            </li>
-            <li className="list-group-item">
-              <strong>Ubicación:</strong> {prop.location}
-            </li>
-            {prop.category && (
-              <li className="list-group-item">
-                <strong>Categoría:</strong> {prop.category.name}
-              </li>
-            )}
-            <li className="list-group-item">
-              <strong>Publicado:</strong>{' '}
-              {new Date(prop.createdAt).toLocaleDateString()}
-            </li>
-          </ul>
         </div>
-        <div className="col-lg-4">
-          <h5>Contactar al agente</h5>
-          {/* Asegúrate de que PropertyInquiryForm sea un componente cliente si usa useState, fetch en cliente, etc. */}
-          <PropertyInquiryForm propertyId={propId} />
+      )}
+
+      {/* Datos de la propiedad */}
+      <FadeInSectionClient>
+        <div className="row mb-4">
+          <div className="col-md-8">
+            <p><strong>Descripción:</strong> {prop.description}</p>
+            <p>
+              <strong>Precio:</strong>{' '}
+              {prop.currency === 'USD' ? '$ ' : 'AR$ '}
+              {prop.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p><strong>Ubicación:</strong> {prop.location}</p>
+            <p><strong>Categoría:</strong> {prop.category.name}</p>
+          </div>
+          <div className="col-md-4 text-center text-md-end">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-success btn-lg"
+            >
+              <i className="bi bi-whatsapp me-2"></i>
+              Consultar por WhatsApp
+            </a>
+          </div>
         </div>
+      </FadeInSectionClient>
+
+      {/* Botón volver */}
+      <div className="text-center">
+        <Link href="/propiedades" className="btn btn-outline-secondary">
+          ← Volver al listado
+        </Link>
       </div>
-    </section>
+    </div>
   );
 }

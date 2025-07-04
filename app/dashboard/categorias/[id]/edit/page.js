@@ -1,51 +1,39 @@
-// app/dashboard/categorias/page.js
-import { prisma } from '@/lib/prisma';
-import Link from 'next/link';
+// app/dashboard/categorias/[id]/edit/page.js
+import DashboardLayout from '@/components/dashboard/Layout'
+import EditCategoryForm from '@/components/dashboard/EditCategoryForm'
+import { prisma } from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic'; // evitar prerender si la DB no está accesible en build
+export const dynamic = 'force-dynamic'
 
-export default async function CategoriasPage({ searchParams }) {
-  // No es “use client”, es server component
-  // Paginación opcional o listar todas si pocas
-  let categories = [];
+export default async function EditCategoryPage({ params }) {
+  // Esperamos params por si vienen de forma async
+  const { id } = await params
+  const categoryId = parseInt(id, 10)
+
+  let category = null
   try {
-    categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+    category = await prisma.category.findUnique({ where: { id: categoryId } })
   } catch (err) {
-    console.error('Error al obtener categorías en dashboard:', err);
+    console.error('Error al cargar categoría para edición:', err)
   }
+
+  if (!category) {
+    return (
+      <DashboardLayout>
+        <div className="container py-5">
+          <h1 className="mb-4">Editar Categoría</h1>
+          <p className="text-danger">Categoría no encontrada.</p>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
-    <div className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Categorías</h1>
-        <Link href="/dashboard/categorias/new" className="btn btn-primary">
-          Nueva Categoría
-        </Link>
+    <DashboardLayout>
+      <div className="container py-5">
+        <h1 className="mb-4">Editar Categoría</h1>
+        <EditCategoryForm category={category} />
       </div>
-      <div className="table-responsive">
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map(cat => (
-              <tr key={cat.id}>
-                <td>{cat.name}</td>
-                <td>
-                  <Link href={`/dashboard/categorias/${cat.id}/edit`} className="btn btn-sm btn-outline-secondary me-2">
-                    Editar
-                  </Link>
-                  <Link href={`/dashboard/categorias/${cat.id}/delete`} className="btn btn-sm btn-outline-danger">
-                    Eliminar
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+    </DashboardLayout>
+  )
 }

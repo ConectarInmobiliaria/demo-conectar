@@ -1,5 +1,5 @@
 {
-  "name": "demo-conectar",
+  "name": "demo-marcon",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,12 +14,14 @@
     "@hookform/resolvers": "^5.1.1",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/client": "^6.10.1",
-    "@supabase/supabase-js": "^2.50.0",
+    "@supabase/supabase-js": "^2.50.3",
     "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.18.1",
     "lucide-react": "^0.518.0",
+    "multer": "^2.0.1",
     "next": "15.3.3",
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.6",
@@ -28,6 +30,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.58.1",
     "react-hot-toast": "^2.5.2",
+    "sharp": "^0.34.2",
     "zod": "^3.25.67"
   },
   "devDependencies": {

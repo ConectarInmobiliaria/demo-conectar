@@ -13,7 +13,7 @@ model User {
   email          String    @unique
   emailVerified  DateTime?
   image          String?
-  passwordHash   String?   
+  passwordHash   String?
   role           String    @default("INQUILINO")
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -22,6 +22,8 @@ model User {
   sessions       Session[]
   inquiries      Inquiry[]
   properties     Property[] @relation("UserProperties")
+
+  @@map("users")
 }
 
 model Account {
@@ -30,7 +32,7 @@ model Account {
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String? 
+  refresh_token      String?
   access_token       String?
   expires_at         Int?
   token_type         String?
@@ -43,6 +45,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
@@ -62,12 +65,15 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Category {
   id         Int        @id @default(autoincrement())
   name       String     @unique
   properties Property[]
+
+  @@map("categories")
 }
 
 model Property {
@@ -85,6 +91,8 @@ model Property {
   imageUrl       String?
   otherImageUrls String[]   @default([])
   inquiries      Inquiry[]
+
+  @@map("properties")
 }
 
 model Inquiry {
@@ -98,4 +106,6 @@ model Inquiry {
   phone       String?
   message     String?
   createdAt   DateTime @default(now())
+
+  @@map("inquiries")
 }

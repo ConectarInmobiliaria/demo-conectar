@@ -54,14 +54,14 @@ export default function ChatbotWidget() {
               'Realizamos tasaciones profesionales basadas en más de 30 años de experiencia. ¿Querés que te enviemos más info?',
           };
           break;
-        case 'Administración de Propiedades':
+        case 'Administración':
           botReply = {
             from: 'bot',
             text:
               'Ofrecemos administración integral de tus inmuebles: alquileres, mantenimiento y cobros. ¿Te gustaría contactarte ahora?',
           };
           break;
-        case 'Comercialización de Alquileres':
+        case 'Venta':
           botReply = {
             from: 'bot',
             text:
@@ -198,7 +198,7 @@ export default function ChatbotWidget() {
               ) && (
                 <div className="mt-3">
                   <a
-                    href="https://wa.me/543764579547"
+                    href="https://wa.me/543764728718"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-success btn-sm w-100 mb-2"
@@ -216,3 +216,4 @@ export default function ChatbotWidget() {
     </>
   );
 }
+

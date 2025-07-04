@@ -1,6 +1,6 @@
 // app/api/propiedades/[id]/route.js
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // import nombrado
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
@@ -21,33 +21,30 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PUT(request, { params }) {
+export async function PUT(request, context) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  const id = parseInt(params.id, 10);
-  const existing = await prisma.property.findUnique({ where: { id } });
-  if (!existing) return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
-  if (session.user.role !== 'ADMIN' && session.user.id !== existing.creatorId) {
+  if (!['ADMIN','CORREDOR'].includes(session.user.role)) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
+
+  const id = parseInt(context.params.id, 10);
   const body = await request.json();
-  const { title, description, price, location, categoryId, imageUrl } = body;
+  const { title, description, price, currency, location, categoryId, otherImageUrls } = body;
+  if (!['ARS','USD'].includes(currency)) {
+    return NextResponse.json({ error: 'Moneda inválida' }, { status: 400 });
+  }
+
   try {
     const updated = await prisma.property.update({
       where: { id },
-      data: {
-        title: title ?? existing.title,
-        description: description ?? existing.description,
-        price: price != null ? parseFloat(price) : existing.price,
-        location: location ?? existing.location,
-        categoryId: categoryId ? parseInt(categoryId, 10) : existing.categoryId,
-        imageUrl: imageUrl !== undefined ? imageUrl : existing.imageUrl,
-      },
+      data: { title, description, price, currency, location,
+              categoryId, otherImageUrls },
     });
     return NextResponse.json(updated);
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: 'Error al actualizar propiedad' }, { status: 500 });
+    return NextResponse.json({ error: 'Error actualizando propiedad' }, { status: 500 });
   }
 }
 

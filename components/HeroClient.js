@@ -26,7 +26,7 @@ export default function HeroClient() {
           transition={{ duration: 0.6 }}
           className="display-5 fw-bold"
         >
-          Bienvenido a Inmobiliaria Conectar
+          Bienvenido a Marcon Inmobiliaria
         </motion.h1>
         <motion.p
           initial={{ y: 20, opacity: 0 }}

@@ -54,7 +54,7 @@ export default function Navbar() {
       <div className="container">
         {/* Marca / Logo */}
         <Link href="/" className="navbar-brand d-flex align-items-center" onClick={closeMenu}>
-          <Image src="/logo.png" alt="Marcon" width={200} height={80} />
+          <Image src="/logo.png" alt="Marcon" width={160} height={50} />
         </Link>
 
         {/* Botón hamburguesa */}

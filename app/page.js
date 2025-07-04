@@ -37,7 +37,6 @@ export default async function HomePage() {
     <>
       {/* Solo un HeroClient, no repetir sección manual */}
       <HeroClient />
-
       {/* Sección de introducción con misión / visión */}
       <section className="container py-5">
         <FadeInSectionClient>
@@ -57,11 +56,7 @@ export default async function HomePage() {
       </section>
 
       {/* Sección: Propiedades destacadas por categoría */}
-      <section className="container py-5">
-        <FadeInHeadingClient as="h2" className="mb-4">
-          Propiedades destacadas por categoría
-        </FadeInHeadingClient>
-
+        <section className="container py-5">
         {catWithProps.map(({ category, properties }) => (
           <div key={category.id} className="mb-5">
             <FadeInHeadingClient as="h3" className="mb-3">

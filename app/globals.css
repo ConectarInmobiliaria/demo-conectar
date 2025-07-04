@@ -32,10 +32,10 @@ body {
 
 .btn-primary:hover, .btn-primary:focus {
   background-color: #00D86D;
-  border-color:#00D86D;
+  border-color: #00D86D;
 }
 .perfil-mirta {
-  border: 6px solid #bfa46d; /* Color dorado, podés cambiarlo */
+  border: 6px solid #00D86D; /* Color dorado, podés cambiarlo */
   box-shadow: 0 0 24px rgba(0,0,0,0.15);
   padding: 4px; /* Opcional, para separar el borde de la imagen */
 }

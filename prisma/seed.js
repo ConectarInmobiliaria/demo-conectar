@@ -6,9 +6,9 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Credenciales deseadas para seed:
-  const adminEmail = 'admin@marcon.com';
+  const adminEmail = 'admin@conectar.com.ar';
   const adminPassword = 'Admin123!'; // en entorno real, gestiona con cuidado
-  const corredorEmail = 'corredor@marcon.com';
+  const corredorEmail = 'corredor@conectar.com.ar';
   const corredorPassword = 'Corredor123!';
 
   // Usuario ADMIN
@@ -61,7 +61,7 @@ async function main() {
   }
 
   // Crear categorías de ejemplo:
-  const categories = ['Casa', 'Departamento', 'Terreno', 'Oficina'];
+  const categories = ['Propiedades en Alquiler', 'Departamento', 'Terreno', 'Oficina'];
   for (const name of categories) {
     const exists = await prisma.category.findUnique({ where: { name } });
     if (!exists) {
