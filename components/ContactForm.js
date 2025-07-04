@@ -1,126 +1,59 @@
 // components/ContactForm.js
 'use client';
-
 import { useState } from 'react';
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const [status, setStatus] = useState('idle');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setStatus('submitting');
-    setErrorMsg('');
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || 'Error al enviar el formulario');
-      }
-      setStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
-    } catch (err) {
-      console.error('Error en ContactForm:', err);
-      setErrorMsg(err.message || 'Error en envío');
-      setStatus('error');
-    }
+    const text = `Nombre: ${name}%0AEmail: ${email}%0AMensaje: ${message}`;
+    window.open(`https://wa.me/3764617711?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
-    <div>
-      {status === 'success' && (
-        <div className="alert alert-success" role="alert">
-          ¡Gracias! Tu mensaje ha sido enviado. Te responderemos pronto.
-        </div>
-      )}
-      {status === 'error' && errorMsg && (
-        <div className="alert alert-danger" role="alert">
-          {errorMsg}
-        </div>
-      )}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={status === 'submitting'}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={status === 'submitting'}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="phone" className="form-label">
-            Teléfono (opcional)
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            disabled={status === 'submitting'}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="message" className="form-label">
-            Mensaje
-          </label>
-          <textarea
-            className="form-control"
-            id="message"
-            name="message"
-            rows={4}
-            value={formData.message}
-            onChange={handleChange}
-            required
-            disabled={status === 'submitting'}
-          ></textarea>
-        </div>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={status === 'submitting'}
-        >
-          {status === 'submitting' ? 'Enviando...' : 'Enviar mensaje'}
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium">Nombre *</label>
+        <input
+          id="name"
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full p-2 border rounded-2xl"
+        />
+      </div>
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium">Email *</label>
+        <input
+          id="email"
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-1 block w-full p-2 border rounded-2xl"
+        />
+      </div>
+      <div>
+        <label htmlFor="message" className="block text-sm font-medium">Mensaje *</label>
+        <textarea
+          id="message"
+          required
+          rows={4}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="mt-1 block w-full p-2 border rounded-2xl"
+        />
+      </div>
+      <button
+        type="submit"
+        className="w-full py-2 rounded-2xl font-semibold bg-green-600 hover:bg-green-700 text-white"
+      >
+        Enviar por WhatsApp
+      </button>
+    </form>
   );
 }

@@ -1,76 +1,60 @@
 // app/contacto/page.js
-import ContactForm from '@/components/ContactForm';
 import Link from 'next/link';
+import { MapPin, Phone, Youtube, Facebook, Instagram } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata = {
-  title: 'Contacto | Inmobiliaria Marcon',
-  description: 'Contáctanos en Inmobiliaria Marcon. Dirección, teléfono y redes sociales.',
+  title: 'Contacto | Conectar Inmobiliaria',
+  description: 'Contáctanos en Conectar Inmobiliaria. Dirección, teléfono y redes sociales.',
 };
 
 export default function ContactoPage() {
-  // URL de embed de Google Maps centrado en San Luis 1663, Posadas
   const mapSrc =
-    'https://maps.google.com/maps?q=San%20Luis%201663%20Posadas%20Misiones%20Argentina&z=15&output=embed';
+    'https://maps.google.com/maps?q=Av.%20Padre%20Kolping%20y%20Av.%20Lopez%20y%20Planes%20Posadas%20Misiones%20Argentina&z=15&output=embed';
 
   return (
     <section className="container py-5">
-      <h1 className="mb-4 text-center">Contáctanos</h1>
-      <div className="row gy-4">
-        {/* Columna de información y mapa */}
-        <div className="col-lg-6">
-          <h5>Visítanos</h5>
-          <div className="ratio ratio-16x9 mb-3">
+      <h1 className="mb-4 text-center text-2xl font-semibold">Contáctanos</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Información y mapa */}
+        <div>
+          <h5 className="text-xl font-medium mb-3 flex items-center gap-2">
+            <MapPin size={24} /> Visítanos
+          </h5>
+          <div className="aspect-video mb-4 rounded-2xl shadow">
             <iframe
               src={mapSrc}
-              title="Ubicación Inmobiliaria Marcon"
+              title="Ubicación Conectar Inmobiliaria"
               allowFullScreen
               loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+              className="w-full h-full rounded-2xl"
+            />
           </div>
-          <p>
-            <strong>Dirección:</strong> San Luis 1663, N3300 Posadas, Misiones, Argentina
+          <p className="flex items-center gap-2 mb-2">
+            <MapPin /> Av. Padre Kolping y Av. López y Planes, Posadas, Misiones
           </p>
-          <p>
-            <strong>Teléfono:</strong>{' '}
-            <a href="tel:03764424071">0376 442-4071</a>
+          <p className="flex items-center gap-2 mb-2">
+            <Phone />
+            <a href="tel:+543764462x" className="hover:underline">0376 446-2711</a>
           </p>
-          <p>
-            <strong>Redes Sociales:</strong>
-          </p>
-          <p>
-            <a
-              href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="me-3 text-decoration-none"
-              aria-label="YouTube"
-            >
-              <i className="bi bi-youtube fs-4 text-danger"></i>
-            </a>
-            <a
-              href="https://www.facebook.com/inmobiliariamarcon"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="me-3 text-decoration-none"
-              aria-label="Facebook"
-            >
-              <i className="bi bi-facebook fs-4 text-primary"></i>
-            </a>
-            <a
-              href="https://www.instagram.com/inmobiliariamarcon/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-decoration-none"
-              aria-label="Instagram"
-            >
-              <i className="bi bi-instagram fs-4 text-warning"></i>
-            </a>
-          </p>
+          <div className="flex items-center gap-4 mt-4">
+            <Link href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ" target="_blank" aria-label="YouTube">
+              <Youtube size={28} className="text-red-600 hover:text-red-700" />
+            </Link>
+            <Link href="https://www.facebook.com/ConectarInmobiliaria" target="_blank" aria-label="Facebook">
+              <Facebook size={28} className="text-blue-600 hover:text-blue-700" />
+            </Link>
+            <Link href="https://www.instagram.com/conectarinmobiliaria/" target="_blank" aria-label="Instagram">
+              <Instagram size={28} className="text-pink-500 hover:text-pink-600" />
+            </Link>
+          </div>
         </div>
-        {/* Columna de formulario */}
-        <div className="col-lg-6">
-          <h5>Envíanos un mensaje</h5>
+
+        {/* Formulario */}
+        <div>
+          <h5 className="text-xl font-medium mb-3 flex items-center gap-2">
+            <Phone /> Escríbenos
+          </h5>
           <ContactForm />
         </div>
       </div>

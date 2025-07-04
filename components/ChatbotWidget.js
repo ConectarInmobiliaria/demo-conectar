@@ -198,7 +198,7 @@ export default function ChatbotWidget() {
               ) && (
                 <div className="mt-3">
                   <a
-                    href="https://wa.me/543764728718"
+                    href="https://wa.me/543764617711"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-success btn-sm w-100 mb-2"

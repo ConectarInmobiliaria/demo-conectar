@@ -40,7 +40,7 @@ export default async function HomePage() {
       {/* Sección de introducción con misión / visión */}
       <section className="container py-5">
         <FadeInSectionClient>
-          <h2 className="text-center mb-4">Bienvenidos a Inmobiliaria Marcon</h2>
+          <h2 className="text-center mb-4">Bienvenidos a Inmobiliaria Conectar</h2>
           <p className="text-center mx-auto" style={{ maxWidth: '800px' }}>
             “Más de tres décadas de experiencia en negocios inmobiliarios en el noreste argentino,
             sur de Paraguay y costa de Brasil. Tenemos un know how propio sobre tasaciones,
