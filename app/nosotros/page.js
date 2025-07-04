@@ -17,7 +17,7 @@ export default function NosotrosPage() {
         'Miembro de la comisión directiva del CCPIM',
         'Coordinadora comisión de Mujeres inmobiliarias',
       ],
-      image: '/team/nidia.jpg',
+      image: '/equipo/paola.jpeg',
       links: { linkedin: '#', instagram: '#' },
     },
     {
@@ -29,12 +29,12 @@ export default function NosotrosPage() {
     },
     {
       name: 'Milton M. De Campos',
-      title: 'Programador',
+      title: 'Asesor',
       extra: [
         'Experto en arquitectura de software y desarrollo de sistemas',
         '+20 años implementando soluciones tecnológicas para empresas líderes',
       ],
-      image: '/team/milton.jpg',
+      image: '/equipo/milton.jpeg',
       links: { linkedin: '#', instagram: '#' },
     },
   ];
