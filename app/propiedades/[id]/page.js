@@ -8,14 +8,14 @@ import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
 export const dynamic = 'force-dynamic';
 
 export default async function PropertyDetailPage({ params }) {
-  const id = parseInt(params.id, 10);
-  const prop = await prisma.property.findUnique({
-    where: { id },
-    include: { category: true, creator: true },
-  });
-  if (!prop) {
-    return <p className="container py-5">Propiedad no encontrada.</p>;
-  }
+  const id = params.id;
+   const prop = await prisma.property.findUnique({
+   where: { id },
+     include: { category: true, creator: true },
+   });
+   if (!prop) {
+     return <p className="container py-5">Propiedad no encontrada.</p>;
+   }
 
   // Todas las imágenes: la principal + otras
   const images = [
