@@ -1,11 +1,11 @@
+// app/api/categories/[id]/route.js
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 // Obtener una categoría por ID
-export async function GET(request, context) {
-  const { params } = await context;
+export async function GET(request, { params }) {
   const id = parseInt(params.id, 10);
   try {
     const cat = await prisma.category.findUnique({ where: { id } });
@@ -18,16 +18,14 @@ export async function GET(request, context) {
 }
 
 // Actualizar categoría por ID
-export async function PUT(request, context) {
-  const { params } = await context;
+export async function PUT(request, { params }) {
   const id = parseInt(params.id, 10);
 
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   if (session.user.role !== 'ADMIN') return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
 
-  const body = await request.json();
-  const { name } = body;
+  const { name } = await request.json();
   if (!name) return NextResponse.json({ error: 'Nombre es requerido' }, { status: 400 });
 
   try {
@@ -54,8 +52,7 @@ export async function PUT(request, context) {
 }
 
 // Eliminar categoría por ID
-export async function DELETE(request, context) {
-  const { params } = await context;
+export async function DELETE(request, { params }) {
   const id = parseInt(params.id, 10);
 
   const session = await getServerSession(authOptions);
@@ -75,8 +72,6 @@ export async function DELETE(request, context) {
     }
 
     await prisma.category.delete({ where: { id } });
-
-    // 204 No Content: debe usarse con `new Response`, no `NextResponse.json`
     return new Response(null, { status: 204 });
   } catch (e) {
     console.error('Error al eliminar categoría:', e);

@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -5,6 +6,11 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+}
+
+enum Currency {
+  ARS
+  USD
 }
 
 model User {
@@ -77,10 +83,11 @@ model Category {
 }
 
 model Property {
-  id             Int       @id @default(autoincrement())
+  id             String    @id @default(cuid())
   title          String
   description    String
   price          Float
+  currency       Currency  @default(ARS)
   location       String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -97,7 +104,7 @@ model Property {
 
 model Inquiry {
   id          Int      @id @default(autoincrement())
-  propertyId  Int
+  propertyId  String
   property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   userId      String?
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
