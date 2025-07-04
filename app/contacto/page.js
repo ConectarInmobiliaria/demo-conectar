@@ -1,7 +1,5 @@
-// app/contacto/page.js
-import Link from 'next/link';
-import { MapPin, Phone, Youtube, Facebook, Instagram } from 'lucide-react';
 import ContactForm from '@/components/ContactForm';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Contacto | Conectar Inmobiliaria',
@@ -14,46 +12,44 @@ export default function ContactoPage() {
 
   return (
     <section className="container py-5">
-      <h1 className="mb-4 text-center text-2xl font-semibold">Contáctanos</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <h1 className="mb-4 text-center">Contáctanos</h1>
+      <div className="row gy-4">
         {/* Información y mapa */}
-        <div>
-          <h5 className="text-xl font-medium mb-3 flex items-center gap-2">
-            <MapPin size={24} /> Visítanos
+        <div className="col-lg-6">
+          <h5 className="mb-3">
+            <i className="bi bi-geo-alt-fill me-2"></i>Visítanos
           </h5>
-          <div className="aspect-video mb-4 rounded-2xl shadow">
+          <div className="ratio ratio-16x9 mb-3 rounded">
             <iframe
               src={mapSrc}
               title="Ubicación Conectar Inmobiliaria"
               allowFullScreen
               loading="lazy"
-              className="w-full h-full rounded-2xl"
+              className="rounded"
             />
           </div>
-          <p className="flex items-center gap-2 mb-2">
-            <MapPin /> Av. Padre Kolping y Av. López y Planes, Posadas, Misiones
+          <p><i className="bi bi-geo-alt me-2"></i>Av. Padre Kolping y Av. López y Planes, Posadas, Misiones</p>
+          <p>
+            <i className="bi bi-telephone-fill me-2"></i>
+            <a href="tel:+543764617711" className="text-decoration-none">3764 617711</a>
           </p>
-          <p className="flex items-center gap-2 mb-2">
-            <Phone />
-            <a href="tel:+543764462x" className="hover:underline">0376 446-2711</a>
-          </p>
-          <div className="flex items-center gap-4 mt-4">
-            <Link href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ" target="_blank" aria-label="YouTube">
-              <Youtube size={28} className="text-red-600 hover:text-red-700" />
+          <div className="mt-4">
+            <Link href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ" target="_blank" className="me-3" aria-label="YouTube">
+              <i className="bi bi-youtube fs-3 text-danger"></i>
             </Link>
-            <Link href="https://www.facebook.com/ConectarInmobiliaria" target="_blank" aria-label="Facebook">
-              <Facebook size={28} className="text-blue-600 hover:text-blue-700" />
+            <Link href="https://www.facebook.com/ConectarInmobiliaria" target="_blank" className="me-3" aria-label="Facebook">
+              <i className="bi bi-facebook fs-3 text-primary"></i>
             </Link>
             <Link href="https://www.instagram.com/conectarinmobiliaria/" target="_blank" aria-label="Instagram">
-              <Instagram size={28} className="text-pink-500 hover:text-pink-600" />
+              <i className="bi bi-instagram fs-3 text-warning"></i>
             </Link>
           </div>
         </div>
 
         {/* Formulario */}
-        <div>
-          <h5 className="text-xl font-medium mb-3 flex items-center gap-2">
-            <Phone /> Escríbenos
+        <div className="col-lg-6">
+          <h5 className="mb-3">
+            <i className="bi bi-chat-dots-fill me-2"></i>Escríbenos
           </h5>
           <ContactForm />
         </div>

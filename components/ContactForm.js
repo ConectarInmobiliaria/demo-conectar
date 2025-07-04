@@ -1,4 +1,3 @@
-// components/ContactForm.js
 'use client';
 import { useState } from 'react';
 
@@ -14,45 +13,45 @@ export default function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium">Nombre *</label>
+    <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+      <div className="mb-3">
+        <label htmlFor="name" className="form-label">Nombre *</label>
         <input
           id="name"
           type="text"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full p-2 border rounded-2xl"
+          className="form-control"
         />
       </div>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">Email *</label>
+      <div className="mb-3">
+        <label htmlFor="email" className="form-label">Email *</label>
         <input
           id="email"
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block w-full p-2 border rounded-2xl"
+          className="form-control"
         />
       </div>
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium">Mensaje *</label>
+      <div className="mb-3">
+        <label htmlFor="message" className="form-label">Mensaje *</label>
         <textarea
           id="message"
           required
           rows={4}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="mt-1 block w-full p-2 border rounded-2xl"
+          className="form-control"
         />
       </div>
       <button
         type="submit"
-        className="w-full py-2 rounded-2xl font-semibold bg-green-600 hover:bg-green-700 text-white"
+        className="btn btn-primary w-100"
       >
-        Enviar por WhatsApp
+        <i className="bi bi-whatsapp me-2"></i>Enviar por WhatsApp
       </button>
     </form>
   );
