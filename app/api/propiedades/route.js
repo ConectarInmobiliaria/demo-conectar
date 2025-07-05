@@ -86,10 +86,14 @@ export async function POST(request) {
         imageUrl: imageUrl || null,
         otherImageUrls: otherImageUrls || [],
       })
+      // solicitamos la fila creada
+      .select(`*, category(name), creator(id, name, email)`)
       .single();
-    if (error) throw error;
 
+    if (error) throw error;
+    // formateamos el price
     prop.price = formatPrice(prop.price);
+
     return NextResponse.json(prop, { status: 201 });
   } catch (e) {
     console.error('Error creando propiedad:', e);
