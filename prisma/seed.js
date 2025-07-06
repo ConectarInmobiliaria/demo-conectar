@@ -5,9 +5,8 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  // Credenciales deseadas para seed:
   const adminEmail = 'admin@conectar.com.ar';
-  const adminPassword = 'Admin123!'; // en entorno real, gestiona con cuidado
+  const adminPassword = 'Admin123!';
   const corredorEmail = 'corredor@conectar.com.ar';
   const corredorPassword = 'Corredor123!';
 
@@ -17,7 +16,8 @@ async function main() {
     const hashed = await bcrypt.hash(adminPassword, 10);
     adminUser = await prisma.user.create({
       data: {
-        name: 'Administrador',
+        firstName: 'Admin',
+        lastName: 'Conectar',
         email: adminEmail,
         passwordHash: hashed,
         role: 'ADMIN',
@@ -26,7 +26,6 @@ async function main() {
     console.log('Usuario admin creado:', adminEmail);
   } else {
     console.log('Usuario admin ya existe:', adminEmail);
-    // Si existía pero rol distinto, opcionalmente actualizar:
     if (adminUser.role !== 'ADMIN') {
       await prisma.user.update({
         where: { email: adminEmail },
@@ -36,13 +35,14 @@ async function main() {
     }
   }
 
-  // Usuario CORREDOR de ejemplo
+  // Usuario CORREDOR
   let corredorUser = await prisma.user.findUnique({ where: { email: corredorEmail } });
   if (!corredorUser) {
     const hashed2 = await bcrypt.hash(corredorPassword, 10);
     corredorUser = await prisma.user.create({
       data: {
-        name: 'Corredor Ejemplo',
+        firstName: 'Corredor',
+        lastName: 'Ejemplo',
         email: corredorEmail,
         passwordHash: hashed2,
         role: 'CORREDOR',
@@ -60,7 +60,7 @@ async function main() {
     }
   }
 
-  // Crear categorías de ejemplo:
+  // Categorías de ejemplo
   const categories = ['Propiedades en Alquiler', 'Departamento', 'Terreno', 'Oficina'];
   for (const name of categories) {
     const exists = await prisma.category.findUnique({ where: { name } });
@@ -74,7 +74,6 @@ async function main() {
   const propTitle = 'Casa de ejemplo';
   const existsProp = await prisma.property.findFirst({ where: { title: propTitle } });
   if (!existsProp) {
-    // Tomar primera categoría y corredor de ejemplo
     const firstCategory = await prisma.category.findFirst();
     const corredor = await prisma.user.findUnique({ where: { email: corredorEmail } });
     if (firstCategory && corredor) {

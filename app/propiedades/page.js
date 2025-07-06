@@ -1,5 +1,5 @@
-// app/propiedades/page.js
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -10,32 +10,44 @@ export default function PropiedadesPage() {
   const [propsList, setPropsList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch]     = useState('');
   const [location, setLocation] = useState('');
 
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories]     = useState([]);
   const [selectedCats, setSelectedCats] = useState([]);
 
   const [priceRange, setPriceRange] = useState([0, 0]);
-  const [maxPrice, setMaxPrice] = useState(0);
+  const [maxPrice, setMaxPrice]     = useState(0);
 
   // Al montar: cargar categorías y determinar maxPrice
   useEffect(() => {
     async function init() {
       // Cargar categorías
-      const catRes = await fetch('/api/categories');
+      const catRes  = await fetch('/api/categories');
       const catJson = await catRes.json();
-      setCategories(catJson);
+      setCategories(Array.isArray(catJson) ? catJson : []);
 
       // Sacar precio máximo de todas las propiedades
-      const resp = await fetch('/api/propiedades');
-      const allProps = await resp.json();
-      const prices = allProps.map(p => p.price);
+      const res      = await fetch('/api/propiedades');
+      const allProps = await res.json();
+      if (!Array.isArray(allProps)) {
+        console.error('API /propiedades error:', allProps);
+        setMaxPrice(0);
+        setPriceRange([0, 0]);
+        return;
+      }
+      // Convertir price (string o número) a número puro
+      const prices = allProps.map(p => {
+        const num = typeof p.price === 'string'
+          ? parseFloat(p.price.replace(/\./g, '').replace(/,/g, '.'))
+          : Number(p.price);
+        return isNaN(num) ? 0 : num;
+      });
       const mx = Math.max(...prices, 0);
       setMaxPrice(mx);
       setPriceRange([0, mx]);
 
-      // Dejar la lista vacía hasta la primera búsqueda
+      // Lista inicial vacía
       setPropsList([]);
     }
     init();
@@ -52,15 +64,15 @@ export default function PropiedadesPage() {
     setLoading(true);
 
     const q = new URLSearchParams();
-    if (search) q.set('q', search);
-    if (location) q.set('location', location);
+    if (search)       q.set('q', search);
+    if (location)     q.set('location', location);
     if (selectedCats.length) q.set('categories', selectedCats.join(','));
     q.set('minPrice', priceRange[0]);
     q.set('maxPrice', priceRange[1]);
 
-    const res = await fetch(`/api/propiedades?${q.toString()}`);
+    const res  = await fetch(`/api/propiedades?${q.toString()}`);
     const data = await res.json();
-    setPropsList(data);
+    setPropsList(Array.isArray(data) ? data : []);
     setLoading(false);
   };
 
@@ -166,7 +178,7 @@ export default function PropiedadesPage() {
                     )}
                     <div className="card-body d-flex flex-column">
                       <h5 className="card-title">{prop.title}</h5>
-                      <p className="text-muted mb-1">{prop.category.name}</p>
+                      <p className="text-muted mb-1">{prop.categories?.name}</p>
                       <p className="mb-2 text-truncate">{prop.description}</p>
                       <div className="mt-auto d-flex justify-content-between align-items-center">
                         <span className="fw-bold">
@@ -188,4 +200,3 @@ export default function PropiedadesPage() {
     </div>
   );
 }
-

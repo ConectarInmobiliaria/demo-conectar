@@ -2,60 +2,57 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import { MenuItems } from './MenuItems';
 
 export default function DashboardLayout({ children }) {
-  const { data: session } = useSession();
+  const pathname = usePathname();
 
   return (
-    <div className="d-flex">
-      {/* Sidebar */}
-      <nav className="bg-light border-end" style={{ width: '240px', minHeight: '100vh' }}>
-        <div className="p-3">
-          <h5>Dashboard</h5>
-        </div>
-        <ul className="list-unstyled px-3">
-          <li className="mb-2">
-            <Link href="/dashboard" className="text-decoration-none">
-              Inicio
-            </Link>
-          </li>
-          <li className="mb-2">
-            <Link href="/dashboard/propiedades" className="text-decoration-none">
-              Propiedades
-            </Link>
-          </li>
-          <li className="mb-2">
-            <Link href="/dashboard/categorias" className="text-decoration-none">
-              Categorías
-            </Link>
-          </li>
-          <li className="mb-2">
-            <Link href="/dashboard/usuarios" className="text-decoration-none">
-              Usuarios
-            </Link>
-          </li>
-          <li className="mb-2">
-            <Link href="/dashboard/solicitudes" className="text-decoration-none">
-              Solicitudes
-            </Link>
-          </li>
-        </ul>
-        <div className="p-3 mt-auto">
-          {session && (
-            <button
-              onClick={() => signOut()}
-              className="btn btn-sm btn-outline-danger w-100"
-            >
-              Cerrar sesión
-            </button>
-          )}
+    <div className="container-fluid p-0">
+      {/* Navbar superior */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div className="container-fluid">
+          <Link href="/dashboard" className="navbar-brand">
+            Dashboard
+          </Link>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#dashboardNavbar"
+            aria-controls="dashboardNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="dashboardNavbar">
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              {MenuItems.map((item, idx) => {
+                const active = pathname === item.href;
+                return (
+                  <li className="nav-item" key={idx}>
+                    <Link
+                      href={item.href}
+                      className={
+                        'nav-link d-flex align-items-center' +
+                        (active ? ' active' : '')
+                      }
+                    >
+                      <i className={`${item.icon} me-1`}></i>
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       </nav>
-      {/* Contenido */}
-      <main className="flex-grow-1 p-4">
-        {children}
-      </main>
+
+      {/* Contenido principal */}
+      <main className="container py-4">{children}</main>
     </div>
   );
 }

@@ -20,7 +20,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from(TABLE)
-      .select(`*, category(name), creator(id, name, email)`);
+      .select(`*, categories(name), creator(id, firstName, lastName, email)`);
     if (error) throw error;
 
     const formatted = data.map(item => ({
@@ -87,7 +87,7 @@ export async function POST(request) {
         otherImageUrls: otherImageUrls || [],
       })
       // solicitamos la fila creada
-      .select(`*, category(name), creator(id, name, email)`)
+      .select(`*, categories(name), creator(id, firstName, lastName, email)`)
       .single();
 
     if (error) throw error;
