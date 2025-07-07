@@ -1,4 +1,3 @@
-// app/nosotros/page.js
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,11 +13,12 @@ export default function NosotrosPage() {
       title: 'Martillera Pública y Corredora Inmobiliaria. Matrícula N° 50 CCPIN',
       extra: [
         'Técnica en Higiene y Seguridad',
-        'Miembro de la comisión directiva del CCPIM',
-        'Coordinadora comisión de Mujeres inmobiliarias',
+        'Miembro de la Comisión Directiva del CCPIM',
+        'Coordinadora Comisión de Mujeres Inmobiliarias',
       ],
       image: '/equipo/paola.jpeg',
       links: { linkedin: '#', instagram: '#' },
+      alt: 'Foto de Nidia Paola Gauna'
     },
     {
       name: 'Fernando Javier Aguinaldo',
@@ -26,6 +26,7 @@ export default function NosotrosPage() {
       extra: [],
       image: '/equipo/fernando.jpeg',
       links: { linkedin: '#', instagram: '#' },
+      alt: 'Foto de Fernando Javier Aguinaldo'
     },
     {
       name: 'Milton M. De Campos',
@@ -36,6 +37,7 @@ export default function NosotrosPage() {
       ],
       image: '/equipo/milton.jpeg',
       links: { linkedin: '#', instagram: '#' },
+      alt: 'Foto de Milton M. De Campos'
     },
   ];
 
@@ -103,21 +105,22 @@ export default function NosotrosPage() {
           </div>
         </div>
       </section>
-
-      {/* Nuestro Equipo */}
-      <section className="container py-5">
+       <section className="container py-5">
         <h2 className="text-center mb-5">Nuestro Equipo</h2>
         <div className="row g-4">
           {team.map((member, idx) => (
-            <div className="col-md-4" key={idx}>
+            <div className="col-12 col-sm-6 col-md-4" key={idx}>
               <div className="card h-100 shadow-sm border-0">
-                <div className="overflow-hidden" style={{ height: '250px' }}>
+                <div className="overflow-hidden" style={{ height: '450px' }}>
                   <Image
                     src={member.image}
-                    alt={member.name}
-                    width={400}
-                    height={250}
+                    alt={member.alt}
+                    width={300}
+                    height={450}
                     className="card-img-top object-fit-cover"
+                    priority={idx < 2}            // preload de las dos primeras
+                    sizes="(max-width: 576px) 100vw, 300px"
+                    loading="lazy"                // SEO-friendly
                   />
                 </div>
                 <div className="card-body d-flex flex-column">
@@ -131,10 +134,10 @@ export default function NosotrosPage() {
                     </ul>
                   )}
                   <div className="mt-auto d-flex gap-3">
-                    <Link href={member.links.linkedin} target="_blank" className="text-decoration-none">
+                    <Link href={member.links.linkedin} target="_blank" aria-label={`${member.name} en LinkedIn`}>
                       <i className="bi bi-linkedin fs-4 text-primary"></i>
                     </Link>
-                    <Link href={member.links.instagram} target="_blank" className="text-decoration-none">
+                    <Link href={member.links.instagram} target="_blank" aria-label={`${member.name} en Instagram`}>
                       <i className="bi bi-instagram fs-4 text-warning"></i>
                     </Link>
                   </div>
