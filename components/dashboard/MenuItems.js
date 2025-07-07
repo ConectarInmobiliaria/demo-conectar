@@ -2,6 +2,7 @@
 export const MenuItems = [
   { href: '/dashboard',           label: 'Inicio',       icon: 'bi-house' },
   { href: '/dashboard/usuarios',  label: 'Usuarios',    icon: 'bi-people' },
+  { href: '/dashboard/categorias', label: 'Categorías', icon: 'bi-tags' },
   { href: '/dashboard/propiedades', label: 'Propiedades', icon: 'bi-building' },
   { href: '/dashboard/solicitudes', label: 'Solicitudes', icon: 'bi-envelope' },
   { href: '/dashboard/leads',       label: 'Potenciales',icon: 'bi-person-lines-fill' },
