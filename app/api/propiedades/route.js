@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 const supabase = getSupabaseAdmin();
 const TABLE = 'properties';
 
-// Helper para formatear precio
 function formatPrice(value) {
   return value.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
@@ -20,13 +19,22 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from(TABLE)
-      .select(`*, categories(name), creator(id, firstName, lastName, email)`);
+      .select(`
+        *,
+        categories!categoryId(id, name),
+        users!creatorId(id, firstName, lastName, email)
+      `);
+
     if (error) throw error;
 
     const formatted = data.map(item => ({
       ...item,
+      // renombrar los objetos para que coincidan con tu frontend:
+      category: item.categories,
+      creator: item.users,
       price: formatPrice(item.price),
     }));
+
     return NextResponse.json(formatted);
   } catch (e) {
     console.error('Error listing properties:', e);
@@ -69,10 +77,8 @@ export async function POST(request) {
   }
 
   try {
-    // SKU corto: P-XXXXXX
     const id = `P-${uuidv4().split('-')[0].toUpperCase()}`;
-
-    const { data: prop, error } = await supabase
+    const { data: row, error } = await supabase
       .from(TABLE)
       .insert({
         id,
@@ -86,13 +92,22 @@ export async function POST(request) {
         imageUrl: imageUrl || null,
         otherImageUrls: otherImageUrls || [],
       })
-      // solicitamos la fila creada
-      .select(`*, categories(name), creator(id, firstName, lastName, email)`)
+      .select(`
+        *,
+        categories!categoryId(id, name),
+        users!creatorId(id, firstName, lastName, email)
+      `)
       .single();
 
     if (error) throw error;
-    // formateamos el price
-    prop.price = formatPrice(prop.price);
+
+    // formateo final
+    const prop = {
+      ...row,
+      category: row.categories,
+      creator: row.users,
+      price: formatPrice(row.price),
+    };
 
     return NextResponse.json(prop, { status: 201 });
   } catch (e) {
