@@ -21,7 +21,7 @@ export default function NosotrosPage() {
       links: { linkedin: '#', instagram: '#' },
     },
     {
-      name: 'Fernando Javier A.',
+      name: 'Fernando Javier Aguinaldo',
       title: 'Martillero Público y Corredor Inmobiliario',
       extra: [],
       image: '/equipo/fernando.jpeg',
