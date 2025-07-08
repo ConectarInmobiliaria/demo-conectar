@@ -1,49 +1,59 @@
 // app/page.js
 import Image from 'next/image';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 
-// Componentes de animación cliente
+import HeroClient from '@/components/HeroClient';
 import { FadeInClient } from '@/components/Motion/FadeInClient';
 import { HoverScaleClient } from '@/components/Motion/HoverScaleClient';
 import { FadeInSectionClient } from '@/components/Motion/FadeInSectionClient';
 import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
-// HeroClient muestra ya el slide/hero principal con animaciones:
-import HeroClient from '@/components/HeroClient';
+
+import { getSupabaseAdmin } from '@/lib/supabaseClient';
+
+export const revalidate = 0;
 
 export default async function HomePage() {
-  // 1. Obtener categorías
-  let categories = [];
-  try {
-    categories = await prisma.category.findMany({
-      orderBy: { name: 'asc' },
-    });
-  } catch (e) {
-    console.error('Error al obtener categorías en HomePage:', e);
+  const supabase = getSupabaseAdmin();
+
+  // 1️⃣ Obtener categorías con manejo de error + fallback a []
+  const { data: categoriesData, error: catError } = await supabase
+    .from('categories')
+    .select('id, name')
+    .order('name', { ascending: true });
+
+  if (catError) {
+    console.error('Error fetching categories:', catError);
   }
-  // 2. Para cada categoría, obtener hasta 3 propiedades más recientes
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+
+  // 2️⃣ Para cada categoría, obtener hasta 3 propiedades (idem: fallback)
   const catWithProps = await Promise.all(
     categories.map(async (cat) => {
-      const props = await prisma.property.findMany({
-        where: { categoryId: cat.id },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-      });
-      return { category: cat, properties: props };
+      const { data: propsData, error: propError } = await supabase
+        .from('properties')
+        .select('id, title, description, imageUrl, createdAt')
+        .eq('categoryId', cat.id)
+        .order('createdAt', { ascending: false })
+        .limit(3);
+
+      if (propError) {
+        console.error(`Error fetching properties for category ${cat.id}:`, propError);
+      }
+      const properties = Array.isArray(propsData) ? propsData : [];
+      return { category: cat, properties };
     })
   );
 
   return (
     <>
-      {/* Solo un HeroClient, no repetir sección manual */}
       <HeroClient />
-      {/* Sección de introducción con misión / visión */}
+
       <section className="container py-5">
         <FadeInSectionClient>
           <h2 className="text-center mb-4">Bienvenidos a Inmobiliaria Conectar</h2>
           <p className="text-center mx-auto" style={{ maxWidth: '800px' }}>
             “Más de tres décadas de experiencia en negocios inmobiliarios en el noreste argentino,
-            sur de Paraguay y costa de Brasil. Tenemos un know how propio sobre tasaciones,
+            sur de Paraguay y costa de Brasil. Tenemos un know‑how propio sobre tasaciones,
             comercialización de alquileres y administración de propiedades en Posadas y principales
             ciudades de Misiones. Vendemos casas, departamentos, dúplex, terrenos, locales, depósitos y cocheras.”
           </p>
@@ -55,18 +65,18 @@ export default async function HomePage() {
         </FadeInSectionClient>
       </section>
 
-      {/* Sección: Propiedades destacadas por categoría */}
-        <section className="container py-5">
+      <section className="container py-5">
         {catWithProps.map(({ category, properties }) => (
           <div key={category.id} className="mb-5">
             <FadeInHeadingClient as="h3" className="mb-3">
               {category.name}
             </FadeInHeadingClient>
+
             {properties.length === 0 ? (
               <p className="text-muted">No hay propiedades disponibles en esta categoría.</p>
             ) : (
               <div className="row">
-                {properties.map((prop) => (
+                {properties.map(prop => (
                   <div key={prop.id} className="col-md-4 mb-4">
                     <HoverScaleClient className="card h-100 shadow-sm">
                       {prop.imageUrl ? (
@@ -103,12 +113,12 @@ export default async function HomePage() {
                 ))}
               </div>
             )}
-            {/* Botón ver más de esta categoría */}
+
             <div className="text-end">
               <Link
                 href={{
                   pathname: '/propiedades',
-                  query: { category: category.id }
+                  query: { category: category.id },
                 }}
                 className="btn btn-link"
               >

@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 const supabase = getSupabaseAdmin();
 const TABLE = 'properties';
 
+// Helper para formatear precio
 function formatPrice(value) {
   return value.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
@@ -23,16 +24,17 @@ export async function GET() {
         *,
         categories!categoryId(id, name),
         users!creatorId(id, firstName, lastName, email)
-      `);
+      `)
+      .order('createdAt', { ascending: false });
 
     if (error) throw error;
 
-    const formatted = data.map(item => ({
-      ...item,
-      // renombrar los objetos para que coincidan con tu frontend:
-      category: item.categories,
-      creator: item.users,
-      price: formatPrice(item.price),
+    // Mapear los campos para el frontend
+    const formatted = data.map(row => ({
+      ...row,
+      category: row.categories,
+      creator: row.users,
+      price: formatPrice(row.price),
     }));
 
     return NextResponse.json(formatted);
@@ -43,16 +45,20 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  // Autorización
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
   if (!['ADMIN', 'CORREDOR'].includes(session.user.role)) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
 
+  // Cuerpo
   const {
     title,
     description,
-    price: priceRaw,
+    price: rawPrice,
     currency,
     location,
     categoryId,
@@ -60,12 +66,13 @@ export async function POST(request) {
     otherImageUrls,
   } = await request.json();
 
-  if (!title || !description || priceRaw == null || !location || !categoryId) {
+  // Validación mínima
+  if (!title || !description || rawPrice == null || !location || !categoryId) {
     return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
   }
 
   const price = parseFloat(
-    String(priceRaw)
+    String(rawPrice)
       .replace(/\./g, '')
       .replace(/,/g, '.')
   );
@@ -77,7 +84,10 @@ export async function POST(request) {
   }
 
   try {
+    // Generar un ID legible
     const id = `P-${uuidv4().split('-')[0].toUpperCase()}`;
+
+    // Insertar y devolver la fila completa
     const { data: row, error } = await supabase
       .from(TABLE)
       .insert({
@@ -101,7 +111,7 @@ export async function POST(request) {
 
     if (error) throw error;
 
-    // formateo final
+    // Formatear para la respuesta
     const prop = {
       ...row,
       category: row.categories,
