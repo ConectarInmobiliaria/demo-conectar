@@ -26,9 +26,9 @@ export default function DashboardAppointmentsPage() {
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between mb-4">
-        <h1>Citas</h1>
+        <h1>Reuniones / Visitas</h1>
         <button className="btn btn-primary" onClick={() => router.push('/dashboard/appointments/new')}>
-          Nueva Cita
+          Nueva visita
         </button>
       </div>
       <FullCalendar

@@ -5,14 +5,11 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPropiedadesPage({ searchParams }) {
-  // Si quieres paginación, puedes usar searchParams; aquí listamos todas o puedes hacer paginación simple.
-  // Ejemplo sin paginación (si pocas propiedades). Si son muchas, implementa skip/take con await searchParams.
   let props = [];
   try {
     props = await prisma.property.findMany({
       include: { category: true, creator: true },
       orderBy: { createdAt: 'desc' },
-      // skip: ..., take: ...
     });
   } catch (e) {
     console.error('Error trayendo propiedades en DashboardPropiedadesPage:', e);
@@ -40,13 +37,20 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
             </tr>
           </thead>
           <tbody>
-            {props.map(prop => (
+            {props.map((prop) => (
               <tr key={prop.id}>
                 <td>{prop.title}</td>
                 <td>{prop.category?.name}</td>
-                <td>${prop.price.toLocaleString()}</td>
+                <td>
+                  {prop.currency === 'USD' ? '$' : 'AR$'}{' '}
+                  {prop.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </td>
                 <td>{prop.location}</td>
-                <td>{prop.creator?.name || '—'}</td>
+                <td>
+                  {prop.creator
+                    ? `${prop.creator.firstName || ''} ${prop.creator.lastName || ''}`.trim()
+                    : '—'}
+                </td>
                 <td>{new Date(prop.createdAt).toLocaleDateString()}</td>
                 <td>
                   <Link

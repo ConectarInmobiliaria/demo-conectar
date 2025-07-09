@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 export async function GET(request, { params }) {
-  const id = parseInt(params.id, 10);
+   const id = params.id; // UUID-string
   try {
     const prop = await prisma.property.findUnique({
       where: { id },
@@ -21,16 +21,15 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PUT(request, context) {
+export async function PUT(request, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   if (!['ADMIN','CORREDOR'].includes(session.user.role)) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
 
-  const id = parseInt(context.params.id, 10);
-  const body = await request.json();
-  const { title, description, price, currency, location, categoryId, otherImageUrls } = body;
+  const id = params.id; // UUID-string
+  const { title, description, price, currency, location, categoryId, otherImageUrls } = await request.json();
   if (!['ARS','USD'].includes(currency)) {
     return NextResponse.json({ error: 'Moneda inválida' }, { status: 400 });
   }
@@ -38,8 +37,7 @@ export async function PUT(request, context) {
   try {
     const updated = await prisma.property.update({
       where: { id },
-      data: { title, description, price, currency, location,
-              categoryId, otherImageUrls },
+      data: { title, description, price, currency, location, categoryId, otherImageUrls },
     });
     return NextResponse.json(updated);
   } catch (e) {
@@ -51,17 +49,20 @@ export async function PUT(request, context) {
 export async function DELETE(request, { params }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  const id = parseInt(params.id, 10);
+
+  const id = params.id; // UUID-string
   const existing = await prisma.property.findUnique({ where: { id } });
-  if (!existing) return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
+  if (!existing) {
+    return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
+  }
   if (session.user.role !== 'ADMIN' && session.user.id !== existing.creatorId) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
   try {
     await prisma.property.delete({ where: { id } });
-    return NextResponse.json({}, { status: 204 });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'Error al eliminar propiedad' }, { status: 500 });
-  }
-}
+    return new NextResponse(null, { status: 204 });
+   } catch (e) {
+     console.error(e);
+     return NextResponse.json({ error: 'Error al eliminar propiedad' }, { status: 500 });
+   }
+ }

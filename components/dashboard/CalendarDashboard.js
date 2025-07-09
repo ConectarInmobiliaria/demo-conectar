@@ -6,6 +6,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import esLocale from '@fullcalendar/core/locales/es';
+
 
 export default function CalendarDashboard({ appointments }) {
   // Convertimos las citas a eventos de FullCalendar
@@ -17,6 +19,7 @@ export default function CalendarDashboard({ appointments }) {
 
   return (
     <FullCalendar
+      locale={esLocale}
       plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
       initialView="dayGridMonth"
       initialDate={dayjs().format('YYYY-MM-DD')}
@@ -25,6 +28,12 @@ export default function CalendarDashboard({ appointments }) {
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       }}
+      buttonText={{
+  today: 'Hoy',
+  month: 'Mes',
+  week: 'Semana',
+  day: 'Día'
+}}
       events={events}
       height="auto"
     />

@@ -7,37 +7,41 @@ import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PropertyDetailPage({ params }) {
+export default async function PropertyDetailPage(props) {
+  // Next.js 15+: params llegan en props y deben 'esperarse' si vienen de dynamic
+  const { params } = await props;
   const id = params.id;
-   const prop = await prisma.property.findUnique({
-   where: { id },
-     include: { category: true, creator: true },
-   });
-   if (!prop) {
-     return <p className="container py-5">Propiedad no encontrada.</p>;
-   }
 
-  // Todas las imágenes: la principal + otras
+  // 1️⃣ Traer la propiedad
+  const prop = await prisma.property.findUnique({
+    where: { id },
+    include: { category: true, creator: true },
+  });
+  if (!prop) {
+    return <p className="container py-5">Propiedad no encontrada.</p>;
+  }
+
+  // 2️⃣ Montar el array de imágenes
   const images = [
     ...(prop.imageUrl ? [prop.imageUrl] : []),
     ...(Array.isArray(prop.otherImageUrls) ? prop.otherImageUrls : []),
   ];
 
-  // Texto prellenado para WhatsApp
+  // 3️⃣ Preparar enlace de WhatsApp
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
   const whatsappText = encodeURIComponent(
-    `Hola, estoy interesado en la propiedad "${prop.title}" (ID: ${prop.id}).\n` +
-    `Link: ${process.env.NEXT_PUBLIC_SITE_URL}/propiedades/${prop.id}`
+    `Hola, estoy interesado en "${prop.title}" (ID: ${prop.id}).\n${siteUrl}/propiedades/${prop.id}`
   );
   const whatsappUrl = `https://wa.me/5493764579547?text=${whatsappText}`;
 
   return (
     <div className="container py-5">
-      {/* Título */}
+      {/* Título Animado */}
       <FadeInHeadingClient as="h1" className="mb-4 text-primary">
         {prop.title}
       </FadeInHeadingClient>
 
-      {/* Carrusel de imágenes */}
+      {/* Carrusel de Imágenes */}
       {images.length > 0 && (
         <div id={`carousel-${prop.id}`} className="carousel slide mb-4" data-bs-ride="carousel">
           <div className="carousel-inner">
@@ -82,7 +86,7 @@ export default async function PropertyDetailPage({ params }) {
         </div>
       )}
 
-      {/* Datos de la propiedad */}
+      {/* Detalles */}
       <FadeInSectionClient>
         <div className="row mb-4">
           <div className="col-md-8">
@@ -109,7 +113,7 @@ export default async function PropertyDetailPage({ params }) {
         </div>
       </FadeInSectionClient>
 
-      {/* Botón volver */}
+      {/* Volver */}
       <div className="text-center">
         <Link href="/propiedades" className="btn btn-outline-secondary">
           ← Volver al listado

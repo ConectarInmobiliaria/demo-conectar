@@ -4,13 +4,14 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditPropertyPage(props) {
-  const { id } = await props.params; // 👈 esta línea cambia
-  const parsedId = parseInt(id, 10);
+export default async function EditPropertyPage({ params }) {
+  // 1️⃣ Esperamos params antes de usarlo
+  const { id } = await params;
+  
+  // 2️⃣ Ahora podemos usar el id (un string cuid)
   let prop = null;
-
   try {
-    prop = await prisma.property.findUnique({ where: { id: parsedId } });
+    prop = await prisma.property.findUnique({ where: { id } });
   } catch (e) {
     console.error('Error fetching property in EditPropertyPage:', e);
   }

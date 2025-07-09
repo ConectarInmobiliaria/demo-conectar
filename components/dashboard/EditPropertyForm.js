@@ -48,7 +48,7 @@ export default function EditPropertyForm({ property }) {
       }
 
       // 2) PUT actualización
-      const res = await fetch(`/api/dashboard/propiedades/${property.id}`, {
+      const res = await fetch(`/api/propiedades/${property.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
