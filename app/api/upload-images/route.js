@@ -2,6 +2,9 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 
 export const config = {
   api: {
@@ -13,6 +16,10 @@ const supabase = getSupabaseAdmin();
 const BUCKET = process.env.SUPABASE_BUCKET_NAME;
 const BUCKET_URL = process.env.SUPABASE_BUCKET_URL;
 
+// Cargamos una sola vez el buffer de la marca de agua
+const watermarkPath = path.join(process.cwd(), 'public', 'marca.png');
+const watermarkBuffer = fs.readFileSync(watermarkPath);
+
 export async function POST(request) {
   try {
     const form = await request.formData();
@@ -21,34 +28,43 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No se enviaron archivos' }, { status: 400 });
     }
 
-    const urls = [];
-    for (const file of files) {
-      // Carpeta por fecha
-      const folder = new Date().toISOString().split('T')[0];
-      // Extensión real
-      const ext = file.name.split('.').pop();
-      // Nombre único
-      const filename = `${uuidv4()}.${ext}`;
-      const pathInBucket = `${folder}/${filename}`;
+    const uploadedUrls = [];
 
-      // Sube al bucket Supabase
+    for (const file of files) {
+      // 1️⃣ Leemos el buffer original
+      const inputBuffer = Buffer.from(await file.arrayBuffer());
+
+      // 2️⃣ Procesamos con Sharp: compositing + webp
+      const processedBuffer = await sharp(inputBuffer)
+        .composite([{ input: watermarkBuffer, gravity: 'southeast' }])
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      // 3️⃣ Construimos la clave en el bucket
+      const folder = new Date().toISOString().slice(0, 10);
+      const key = `${folder}/${uuidv4()}.webp`;
+
+      // 4️⃣ Subimos al bucket usando el service role client
       const { data, error } = await supabase
         .storage
         .from(BUCKET)
-        .upload(pathInBucket, file, { upsert: false });
+        .upload(key, processedBuffer, {
+          contentType: 'image/webp',
+          upsert: false
+        });
 
-      if (error) {
-        console.error('Error al subir a Supabase:', error);
-        throw new Error(error.message);
-      }
+      if (error) throw error;
 
-      // Construye URL pública
-      urls.push(`${BUCKET_URL}/${data.path}`);
+      uploadedUrls.push(`${BUCKET_URL}/${data.path}`);
     }
 
-    return NextResponse.json({ urls }, { status: 201 });
+    return NextResponse.json({ urls: uploadedUrls }, { status: 201 });
+
   } catch (e) {
     console.error('Error subiendo imágenes:', e);
-    return NextResponse.json({ error: e.message || 'Error subiendo imágenes' }, { status: 500 });
+    return NextResponse.json(
+      { error: e.message || 'Error subiendo imágenes' },
+      { status: 500 }
+    );
   }
 }

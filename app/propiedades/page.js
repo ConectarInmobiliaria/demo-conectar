@@ -27,27 +27,22 @@ export default function PropiedadesPage() {
       const catJson = await catRes.json();
       setCategories(Array.isArray(catJson) ? catJson : []);
 
-      // Sacar precio máximo de todas las propiedades
-      const res      = await fetch('/api/propiedades');
-      const allProps = await res.json();
+      const resp = await fetch('/api/propiedades');
+      const allProps = await resp.json();
       if (!Array.isArray(allProps)) {
         console.error('API /propiedades error:', allProps);
         setMaxPrice(0);
         setPriceRange([0, 0]);
         return;
       }
-      // Convertir price (string o número) a número puro
       const prices = allProps.map(p => {
-        const num = typeof p.price === 'string'
-          ? parseFloat(p.price.replace(/\./g, '').replace(/,/g, '.'))
-          : Number(p.price);
+        // price ya es string formateado, lo parseamos:
+        const num = parseFloat(p.price.replace(/\./g, '').replace(/,/g, '.'));
         return isNaN(num) ? 0 : num;
       });
       const mx = Math.max(...prices, 0);
       setMaxPrice(mx);
       setPriceRange([0, mx]);
-
-      // Lista inicial vacía
       setPropsList([]);
     }
     init();

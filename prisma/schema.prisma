@@ -1,41 +1,33 @@
-// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-enum Currency {
-  ARS
-  USD
-}
-
 model User {
-  id            String    @id @default(cuid())
-  firstName     String?
-  lastName      String?
-  dni           String?   @unique
-  cuit          String?   @unique
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  passwordHash  String?
-  role          String    @default("INQUILINO")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
+  id                 String        @id @default(cuid())
+  email              String        @unique
+  emailVerified      DateTime?
+  image              String?
+  passwordHash       String?
+  role               String        @default("INQUILINO")
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  cuit               String?       @unique
+  dni                String?       @unique
+  firstName          String?
+  lastName           String?
+  agentAppointments  Appointment[] @relation("AppointmentAgent")
+  clientAppointments Appointment[] @relation("AppointmentClient")
+  contracts          Contract[]    @relation("UserContracts")
+  leadAssignments    Lead[]        @relation("LeadAgent")
   accounts           Account[]
-  sessions           Session[]
   inquiries          Inquiry[]
   properties         Property[]    @relation("UserProperties")
-  clientAppointments Appointment[] @relation("AppointmentClient")
-  agentAppointments  Appointment[] @relation("AppointmentAgent")
-  leadAssignments    Lead[]        @relation("LeadAgent")
-
-  contracts Contract[] @relation("UserContracts") // ✅ ← relación inversa
+  sessions           Session[]
 
   @@map("users")
 }
@@ -55,8 +47,7 @@ model Account {
   session_state      String?
   oauth_token_secret String?
   oauth_token        String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -67,8 +58,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -91,27 +81,24 @@ model Category {
 }
 
 model Property {
-  id             String   @id @default(cuid())
+  id             String        @id @default(cuid())
   title          String
   description    String
   price          Float
-  currency       Currency @default(ARS)
   location       String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   categoryId     Int
-  category       Category @relation(fields: [categoryId], references: [id])
   creatorId      String?
-  creator        User?    @relation("UserProperties", fields: [creatorId], references: [id])
   imageUrl       String?
-  otherImageUrls String[] @default([])
-
-  inquiries Inquiry[]
-
-  // Back‑relations:
-  leads        Lead[]        @relation("PropertyLeads")
-  appointments Appointment[] @relation("PropertyAppointments")
-  contracts    Contract[]    @relation("PropertyContracts")
+  otherImageUrls String[]      @default([])
+  currency       Currency      @default(ARS)
+  appointments   Appointment[] @relation("PropertyAppointments")
+  contracts      Contract[]    @relation("PropertyContracts")
+  leads          Lead[]        @relation("PropertyLeads")
+  inquiries      Inquiry[]
+  category       Category      @relation(fields: [categoryId], references: [id])
+  creator        User?         @relation("UserProperties", fields: [creatorId], references: [id])
 
   @@map("properties")
 }
@@ -119,14 +106,14 @@ model Property {
 model Inquiry {
   id         Int      @id @default(autoincrement())
   propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   name       String
   email      String
   phone      String?
   message    String?
   createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@map("inquiries")
 }
@@ -143,56 +130,56 @@ model Lead {
   status       String        @default("nuevo")
   notes        String?
   propertyId   String?
-  property     Property?     @relation("PropertyLeads", fields: [propertyId], references: [id], onDelete: Cascade)
   agentId      String?
-  agent        User?         @relation("LeadAgent", fields: [agentId], references: [id])
-  appointments Appointment[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+  agent        User?         @relation("LeadAgent", fields: [agentId], references: [id])
+  property     Property?     @relation("PropertyLeads", fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 model Appointment {
   id         String   @id @default(cuid())
   date       DateTime
   propertyId String
+  leadId     String?
+  clientId   String?
+  agentId    String
+  status     String   @default("pendiente")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  agent      User     @relation("AppointmentAgent", fields: [agentId], references: [id], onDelete: Cascade)
+  client     User?    @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
   property   Property @relation("PropertyAppointments", fields: [propertyId], references: [id], onDelete: Cascade)
-
-  leadId String?
-  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: Cascade)
-
-  clientId String?
-  client   User?   @relation("AppointmentClient", fields: [clientId], references: [id], onDelete: Cascade)
-
-  agentId String
-  agent   User   @relation("AppointmentAgent", fields: [agentId], references: [id], onDelete: Cascade)
-
-  status    String   @default("pendiente")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Contract {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   propertyId String
-  property   Property @relation("PropertyContracts", fields: [propertyId], references: [id], onDelete: Cascade)
   tenantId   String
-  tenant     User     @relation("UserContracts", fields: [tenantId], references: [id], onDelete: Cascade) // ✅ ← nombre de la relación
   startDate  DateTime
   endDate    DateTime
   rentAmount Float
   terms      String?
-  status     String   @default("activo")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  receipts Receipt[] @relation("ContractReceipts")
+  status     String    @default("activo")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  property   Property  @relation("PropertyContracts", fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant     User      @relation("UserContracts", fields: [tenantId], references: [id], onDelete: Cascade)
+  receipts   Receipt[] @relation("ContractReceipts")
 }
 
 model Receipt {
   id         String   @id @default(cuid())
   contractId String
-  contract   Contract @relation("ContractReceipts", fields: [contractId], references: [id], onDelete: Cascade)
   issueDate  DateTime @default(now())
   amount     Float
   notes      String?
+  contract   Contract @relation("ContractReceipts", fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+enum Currency {
+  ARS
+  USD
 }
