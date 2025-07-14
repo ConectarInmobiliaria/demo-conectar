@@ -1,33 +1,26 @@
-// app/propiedades/[id]/page.js
 import Image from 'next/image';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { FadeInSectionClient } from '@/components/Motion/FadeInSectionClient';
 import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
+import PropertyFeatures from '@/components/Property/PropertyFeatures';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PropertyDetailPage(props) {
-  // Next.js 15+: params llegan en props y deben 'esperarse' si vienen de dynamic
-  const { params } = await props;
-  const id = params.id;
-
-  // 1️⃣ Traer la propiedad
+export default async function PropertyDetailPage({ params }) {
+  const { id } = await params;
   const prop = await prisma.property.findUnique({
     where: { id },
     include: { category: true, creator: true },
   });
+
   if (!prop) {
     return <p className="container py-5">Propiedad no encontrada.</p>;
   }
-
-  // 2️⃣ Montar el array de imágenes
   const images = [
     ...(prop.imageUrl ? [prop.imageUrl] : []),
     ...(Array.isArray(prop.otherImageUrls) ? prop.otherImageUrls : []),
   ];
-
-  // 3️⃣ Preparar enlace de WhatsApp
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
   const whatsappText = encodeURIComponent(
     `Hola, estoy interesado en "${prop.title}" (ID: ${prop.id}).\n${siteUrl}/propiedades/${prop.id}`
@@ -36,27 +29,30 @@ export default async function PropertyDetailPage(props) {
 
   return (
     <div className="container py-5">
-      {/* Título Animado */}
       <FadeInHeadingClient as="h1" className="mb-4 text-primary">
         {prop.title}
       </FadeInHeadingClient>
 
-      {/* Carrusel de Imágenes */}
+      {/* Galería de imágenes */}
       {images.length > 0 && (
-        <div id={`carousel-${prop.id}`} className="carousel slide mb-4" data-bs-ride="carousel">
-          <div className="carousel-inner">
+        <div
+          id={`carousel-${prop.id}`}
+          className="carousel slide mb-4"
+          data-bs-ride="carousel"
+        >
+          <div className="carousel-inner rounded overflow-hidden" style={{ height: '400px', position: 'relative' }}>
             {images.map((src, idx) => (
               <div
                 key={idx}
                 className={`carousel-item${idx === 0 ? ' active' : ''}`}
-                style={{ height: '400px' }}
+                style={{ position: 'relative', width: '100%', height: '100%' }}
               >
                 <Image
                   src={src}
                   alt={`${prop.title} imagen ${idx + 1}`}
                   fill
-                  style={{ objectFit: 'cover' }}
-                  className="d-block w-100"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className="object-fit-cover w-100 h-100"
                 />
               </div>
             ))}
@@ -69,7 +65,7 @@ export default async function PropertyDetailPage(props) {
                 data-bs-target={`#carousel-${prop.id}`}
                 data-bs-slide="prev"
               >
-                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span className="carousel-control-prev-icon" />
                 <span className="visually-hidden">Anterior</span>
               </button>
               <button
@@ -78,7 +74,7 @@ export default async function PropertyDetailPage(props) {
                 data-bs-target={`#carousel-${prop.id}`}
                 data-bs-slide="next"
               >
-                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                <span className="carousel-control-next-icon" />
                 <span className="visually-hidden">Siguiente</span>
               </button>
             </>
@@ -86,35 +82,24 @@ export default async function PropertyDetailPage(props) {
         </div>
       )}
 
-      {/* Detalles */}
+      {/* Características con íconos estilo Airbnb */}
       <FadeInSectionClient>
-        <div className="row mb-4">
-          <div className="col-md-8">
-            <p><strong>Descripción:</strong> {prop.description}</p>
-            <p>
-              <strong>Precio:</strong>{' '}
-              {prop.currency === 'USD' ? '$ ' : 'AR$ '}
-              {prop.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-            <p><strong>Ubicación:</strong> {prop.location}</p>
-            <p><strong>Categoría:</strong> {prop.category.name}</p>
-          </div>
-          <div className="col-md-4 text-center text-md-end">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-success btn-lg"
-            >
-              <i className="bi bi-whatsapp me-2"></i>
-              Consultar por WhatsApp
-            </a>
-          </div>
+        <PropertyFeatures property={prop} />
+
+        <div className="text-center text-md-end mt-4">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-success btn-lg"
+          >
+            <i className="bi bi-whatsapp me-2"></i>
+            Consultar por WhatsApp
+          </a>
         </div>
       </FadeInSectionClient>
 
-      {/* Volver */}
-      <div className="text-center">
+      <div className="text-center mt-5">
         <Link href="/propiedades" className="btn btn-outline-secondary">
           ← Volver al listado
         </Link>

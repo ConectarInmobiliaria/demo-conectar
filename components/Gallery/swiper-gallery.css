@@ -1,0 +1,16 @@
+.swiper-slide img {
+  width: 100%;
+  height: auto;
+}
+
+.thumb-swiper .swiper-slide {
+  cursor: pointer;
+  opacity: 0.6;
+  border: 2px solid transparent;
+  transition: 0.3s ease;
+}
+
+.thumb-swiper .swiper-slide-thumb-active {
+  opacity: 1;
+  border-color: #0d6efd;
+}

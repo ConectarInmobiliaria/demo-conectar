@@ -27,6 +27,7 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
         <table className="table table-striped align-middle">
           <thead>
             <tr>
+              <th>Cod. Prop.</th>           {/* ← Nueva columna */}
               <th>Título</th>
               <th>Categoría</th>
               <th>Precio</th>
@@ -39,6 +40,7 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
           <tbody>
             {props.map((prop) => (
               <tr key={prop.id}>
+                <td className="text-monospace">{prop.id}</td>  {/* ← Muestra el código */}
                 <td>{prop.title}</td>
                 <td>{prop.category?.name}</td>
                 <td>
@@ -48,7 +50,7 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
                 <td>{prop.location}</td>
                 <td>
                   {prop.creator
-                    ? `${prop.creator.firstName || ''} ${prop.creator.lastName || ''}`.trim()
+                    ? [prop.creator.firstName, prop.creator.lastName].filter(Boolean).join(' ')
                     : '—'}
                 </td>
                 <td>{new Date(prop.createdAt).toLocaleDateString()}</td>

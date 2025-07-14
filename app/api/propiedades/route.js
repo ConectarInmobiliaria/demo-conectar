@@ -3,9 +3,11 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { v4 as uuidv4 } from 'uuid'
+import { customAlphabet } from 'nanoid'
 
-// formatea el price a string "1.234,56"
+const letters = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3);
+const numbers = customAlphabet('0123456789', 3);
+
 function formatPrice(value) {
   return value.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
@@ -40,7 +42,6 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  // 1) Autorización
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -49,35 +50,45 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 })
   }
 
-  // 2) Payload
   const {
     title,
     description,
     price: rawPrice,
     currency,
     location,
+    city,
+    address,
     categoryId,
     imageUrl = null,
     otherImageUrls = [],
+    bedrooms,
+    bathrooms,
+    garage,
+    expenses,
+    videoUrl,
   } = await request.json()
 
-  // 3) Validaciones
-  if (!title || !description || rawPrice == null || !location || !categoryId) {
+  if (!title || !description || rawPrice == null || !location || !city || !address || !categoryId) {
     return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 })
   }
+
   const price = parseFloat(String(rawPrice).replace(/\./g, '').replace(/,/g, '.'))
   if (isNaN(price)) {
     return NextResponse.json({ error: 'Precio inválido' }, { status: 400 })
   }
+
   if (!['ARS', 'USD'].includes(currency)) {
     return NextResponse.json({ error: 'Moneda inválida' }, { status: 400 })
   }
 
-  // 4) Debug: revisá que tu user exista en la tabla `users`
-  console.log('▶ crear propiedad, creatorId=', session.user.id)
+  let code;
+  do {
+    code = letters() + numbers();
+    const existing = await prisma.property.findUnique({ where: { code } });
+    if (!existing) break;
+  } while (true);
 
   try {
-    // 5) Crear con Prisma
     const created = await prisma.property.create({
       data: {
         title,
@@ -85,10 +96,18 @@ export async function POST(request) {
         price,
         currency,
         location,
+        city,
+        address,
         categoryId: Number(categoryId),
         creatorId: session.user.id,
         imageUrl,
         otherImageUrls,
+        bedrooms,
+        bathrooms,
+        garage,
+        expenses,
+        videoUrl,
+        code,
       },
       include: {
         category: true,
@@ -98,7 +117,6 @@ export async function POST(request) {
       },
     })
 
-    // 6) Responder con precio formateado
     return NextResponse.json(
       {
         ...created,

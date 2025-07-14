@@ -158,7 +158,7 @@ export default function ChatbotWidget() {
         >
           {/* Header del chat */}
           <div className="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
-            <strong>MarconBot</strong>
+            <strong>ChatBot Conectar</strong>
             <button
               onClick={() => setIsOpen(false)}
               className="btn btn-sm btn-light text-primary"

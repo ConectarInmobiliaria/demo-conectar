@@ -5,10 +5,9 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function EditPropertyPage({ params }) {
-  // 1️⃣ Esperamos params antes de usarlo
-  const { id } = await params;
-  
-  // 2️⃣ Ahora podemos usar el id (un string cuid)
+  // ✅ Acceso directo a params sin await
+  const { id } = params;
+
   let prop = null;
   try {
     prop = await prisma.property.findUnique({ where: { id } });

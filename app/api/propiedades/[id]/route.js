@@ -29,7 +29,27 @@ export async function PUT(request, { params }) {
   }
 
   const id = params.id; // UUID-string
-  const { title, description, price, currency, location, categoryId, otherImageUrls } = await request.json();
+  const {
+    title,
+    description,
+    price,
+    currency,
+    location,
+    city,
+    address,
+    categoryId,
+    otherImageUrls = [],
+    bedrooms,
+    bathrooms,
+    garage,
+    expenses,
+    videoUrl,
+  } = await request.json();
+
+  if (!title || !description || price == null || !location || !city || !address || !categoryId) {
+    return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
+  }
+
   if (!['ARS','USD'].includes(currency)) {
     return NextResponse.json({ error: 'Moneda inválida' }, { status: 400 });
   }
@@ -37,11 +57,26 @@ export async function PUT(request, { params }) {
   try {
     const updated = await prisma.property.update({
       where: { id },
-      data: { title, description, price, currency, location, categoryId, otherImageUrls },
+      data: {
+        title,
+        description,
+        price: parseFloat(price),
+        currency,
+        location,
+        city,
+        address,
+        categoryId: Number(categoryId),
+        otherImageUrls,
+        bedrooms,
+        bathrooms,
+        garage,
+        expenses,
+        videoUrl,
+      },
     });
     return NextResponse.json(updated);
   } catch (e) {
-    console.error(e);
+    console.error('Error actualizando propiedad:', e);
     return NextResponse.json({ error: 'Error actualizando propiedad' }, { status: 500 });
   }
 }

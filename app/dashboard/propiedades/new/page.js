@@ -10,12 +10,19 @@ export default function NewPropertyPage() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');              // guardamos string puro
+  const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState('ARS');
   const [location, setLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [address, setAddress] = useState('');
+  const [bedrooms, setBedrooms] = useState('');
+  const [bathrooms, setBathrooms] = useState('');
+  const [garage, setGarage] = useState(false);
+  const [expenses, setExpenses] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
-  const [images, setImages] = useState([]);            // archivos seleccionados
+  const [images, setImages] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -35,12 +42,13 @@ export default function NewPropertyPage() {
       setErrorMsg('Debes iniciar sesión para crear una propiedad');
       return;
     }
-    if (!title || !description || !price || !location || !categoryId) {
+    if (!title || !description || !price || !location || !city || !address || !categoryId) {
       setErrorMsg('Completa todos los campos obligatorios');
       return;
     }
 
     const numericPrice = parseFloat(price.replace(/,/g, ''));
+    const numericExpenses = expenses ? parseFloat(expenses.replace(/,/g, '')) : null;
     if (isNaN(numericPrice)) {
       setErrorMsg('Precio inválido');
       return;
@@ -48,7 +56,6 @@ export default function NewPropertyPage() {
 
     setLoading(true);
     try {
-      // 1️⃣ Subir imágenes
       let otherImageUrls = [];
       if (images.length) {
         const formData = new FormData();
@@ -59,7 +66,6 @@ export default function NewPropertyPage() {
         otherImageUrls = uploadJson.urls;
       }
 
-      // 2️⃣ Crear propiedad
       const res = await fetch('/api/propiedades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,9 +75,16 @@ export default function NewPropertyPage() {
           price: numericPrice,
           currency,
           location,
+          city,
+          address,
           categoryId: parseInt(categoryId, 10),
           imageUrl: otherImageUrls[0] || null,
           otherImageUrls,
+          bedrooms: bedrooms ? parseInt(bedrooms, 10) : null,
+          bathrooms: bathrooms ? parseInt(bathrooms, 10) : null,
+          garage,
+          expenses: numericExpenses,
+          videoUrl: videoUrl || null,
         }),
       });
       const json = await res.json();
@@ -93,75 +106,69 @@ export default function NewPropertyPage() {
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-3">
           <label className="form-label">Título *</label>
-          <input
-            type="text"
-            className="form-control"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            disabled={loading}
-            required
-          />
+          <input type="text" className="form-control" value={title} onChange={e => setTitle(e.target.value)} disabled={loading} required />
         </div>
 
         <div className="mb-3">
           <label className="form-label">Descripción *</label>
-          <textarea
-            className="form-control"
-            rows={4}
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            disabled={loading}
-            required
-          />
+          <textarea className="form-control" rows={4} value={description} onChange={e => setDescription(e.target.value)} disabled={loading} required />
         </div>
 
         <div className="row">
           <div className="col-md-4 mb-3">
             <label className="form-label">Precio *</label>
-            <input
-              type="text"
-              className="form-control"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
-              placeholder="Ej. 1,234.56"
-              disabled={loading}
-              required
-            />
+            <input type="text" className="form-control" value={price} onChange={e => setPrice(e.target.value)} disabled={loading} required />
           </div>
           <div className="col-md-4 mb-3">
             <label className="form-label">Moneda *</label>
-            <select
-              className="form-select"
-              value={currency}
-              onChange={e => setCurrency(e.target.value)}
-              disabled={loading}
-            >
+            <select className="form-select" value={currency} onChange={e => setCurrency(e.target.value)} disabled={loading}>
               <option value="ARS">Pesos (ARS)</option>
               <option value="USD">Dólares (USD)</option>
             </select>
           </div>
           <div className="col-md-4 mb-3">
             <label className="form-label">Ubicación *</label>
-            <input
-              type="text"
-              className="form-control"
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-              disabled={loading}
-              required
-            />
+            <input type="text" className="form-control" value={location} onChange={e => setLocation(e.target.value)} disabled={loading} required />
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Ciudad *</label>
+            <input type="text" className="form-control" value={city} onChange={e => setCity(e.target.value)} disabled={loading} required />
+          </div>
+          <div className="col-md-8 mb-3">
+            <label className="form-label">Dirección *</label>
+            <input type="text" className="form-control" value={address} onChange={e => setAddress(e.target.value)} disabled={loading} required />
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-2 mb-3">
+            <label className="form-label">Dormitorios</label>
+            <input type="number" className="form-control" value={bedrooms} onChange={e => setBedrooms(e.target.value)} disabled={loading} />
+          </div>
+          <div className="col-md-2 mb-3">
+            <label className="form-label">Baños</label>
+            <input type="number" className="form-control" value={bathrooms} onChange={e => setBathrooms(e.target.value)} disabled={loading} />
+          </div>
+          <div className="col-md-2 mb-3">
+            <label className="form-label">Garage</label>
+            <input type="checkbox" className="form-check-input ms-2" checked={garage} onChange={e => setGarage(e.target.checked)} disabled={loading} />
+          </div>
+          <div className="col-md-3 mb-3">
+            <label className="form-label">Expensas</label>
+            <input type="text" className="form-control" value={expenses} onChange={e => setExpenses(e.target.value)} disabled={loading} />
+          </div>
+          <div className="col-md-3 mb-3">
+            <label className="form-label">Video URL</label>
+            <input type="url" className="form-control" value={videoUrl} onChange={e => setVideoUrl(e.target.value)} disabled={loading} />
           </div>
         </div>
 
         <div className="mb-3">
           <label className="form-label">Categoría *</label>
-          <select
-            className="form-select"
-            value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
-            disabled={loading}
-            required
-          >
+          <select className="form-select" value={categoryId} onChange={e => setCategoryId(e.target.value)} disabled={loading} required>
             <option value="">-- Selecciona categoría --</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -170,15 +177,8 @@ export default function NewPropertyPage() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Imágenes (múltiples)</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            className="form-control"
-            onChange={handleImageChange}
-            disabled={loading}
-          />
+          <label className="form-label">Imágenes</label>
+          <input type="file" accept="image/*" multiple className="form-control" onChange={handleImageChange} disabled={loading} />
         </div>
 
         <button type="submit" className="btn btn-primary me-2" disabled={loading}>
