@@ -82,14 +82,14 @@ model Category {
 
 model Property {
   id             String        @id @default(cuid())
-  code           String?        @unique
+  code           String?       @unique
   title          String
   description    String
   price          Float
   currency       Currency      @default(ARS)
   location       String
-  city           String
-  address        String
+  city           String?        // ahora opcional
+  address        String?        // ahora opcional
   bedrooms       Int?
   bathrooms      Int?
   garage         Boolean?
