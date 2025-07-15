@@ -57,7 +57,7 @@ export default function NosotrosPage() {
             <div className="card h-100 shadow-sm border-0">
               <div className="overflow-hidden" style={{ height: 300 }}>
                 <Image
-                  src="/nosotros/vision.jpg"
+                  src="/nosotros/vision.gif"
                   alt="Imagen ilustrativa de la visión de Conectar Inmobiliaria"
                   width={600}
                   height={300}
