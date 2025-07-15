@@ -1,8 +1,10 @@
+// components/Gallery/SwiperGalleryWithThumbs.js
 'use client';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Thumbs, Navigation } from 'swiper/modules';
 import { useState } from 'react';
+import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/thumbs';
 import 'swiper/css/navigation';
@@ -13,7 +15,7 @@ export default function SwiperGalleryWithThumbs({ images = [], title = '' }) {
   if (!images.length) return null;
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 swiper-container-custom">
       <Swiper
         modules={[Thumbs, Navigation]}
         thumbs={{ swiper: thumbsSwiper }}
@@ -22,12 +24,16 @@ export default function SwiperGalleryWithThumbs({ images = [], title = '' }) {
       >
         {images.map((src, i) => (
           <SwiperSlide key={i}>
-            <img
-              src={src}
-              alt={`${title} imagen ${i + 1}`}
-              className="img-fluid rounded w-100"
-              style={{ maxHeight: '500px', objectFit: 'cover' }}
-            />
+            <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+              <Image
+                src={src}
+                alt={`${title} imagen ${i + 1}`}
+                fill
+                sizes="100vw"
+                className="rounded"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
@@ -42,11 +48,16 @@ export default function SwiperGalleryWithThumbs({ images = [], title = '' }) {
       >
         {images.map((src, i) => (
           <SwiperSlide key={i}>
-            <img
-              src={src}
-              alt={`Miniatura ${i + 1}`}
-              className="img-thumbnail rounded"
-            />
+            <div style={{ position: 'relative', width: '100%', height: '80px' }}>
+              <Image
+                src={src}
+                alt={`Miniatura ${i + 1}`}
+                fill
+                sizes="80px"
+                className="img-thumbnail rounded"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

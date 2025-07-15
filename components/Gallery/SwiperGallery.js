@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Thumbs, Zoom } from 'swiper/modules';
+import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -14,7 +15,6 @@ import '@/../public/styles/swiper-gallery.css';
 
 export default function SwiperGallery({ images = [], title = '' }) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
-
   if (!images.length) return null;
 
   return (
@@ -32,12 +32,14 @@ export default function SwiperGallery({ images = [], title = '' }) {
         className="mb-3"
       >
         {images.map((src, i) => (
-          <SwiperSlide key={`main-${i}`}>
+          <SwiperSlide key={`main-${i}`}>            
             <div className="swiper-zoom-container">
-              <img
+              <Image
                 src={src}
                 alt={`${title} imagen ${i + 1}`}
-                className="img-fluid rounded"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="rounded"
               />
             </div>
           </SwiperSlide>
@@ -54,11 +56,16 @@ export default function SwiperGallery({ images = [], title = '' }) {
         >
           {images.map((src, i) => (
             <SwiperSlide key={`thumb-${i}`}>
-              <img
-                src={src}
-                alt={`Miniatura ${i + 1}`}
-                className="img-thumbnail"
-              />
+              <div className="position-relative" style={{ width: '100%', height: '80px' }}>
+                <Image
+                  src={src}
+                  alt={`Miniatura ${i + 1}`}
+                  fill
+                  sizes="80px"
+                  className="img-thumbnail rounded"
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
