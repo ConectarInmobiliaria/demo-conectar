@@ -82,7 +82,7 @@ model Category {
 
 model Property {
   id             String        @id @default(cuid())
-  code           String        @unique
+  code           String?        @unique
   title          String
   description    String
   price          Float
