@@ -1,25 +1,27 @@
-// components/HeroClient.js
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import styles from './HeroClient.module.css';
 
 export default function HeroClient() {
+  const videoId = 'ksU5K57ZrcU';
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${videoId}`;
+
   return (
-    <section className="position-relative">
-      <Image
-        src="/slide1.avif"
-        alt="Portada Inmobiliaria Marcon"
-        width={1920}
-        height={600}
-        className="w-100"
-        style={{ objectFit: 'cover', height: '60vh' }}
-      />
-      <div
-        className="position-absolute top-50 start-50 translate-middle text-center text-white px-3"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0)', borderRadius: '8px' }}
-      >
+    <section className={styles.heroSection}>
+      <div className={styles.videoWrapper}>
+        <iframe
+          className={styles.video}
+          src={embedUrl}
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+          title="Fondo Hero Video"
+        />
+        <div className={styles.overlay} />
+      </div>
+      <div className={`${styles.content} text-center text-white px-3`}>        
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

@@ -139,6 +139,9 @@ model Lead {
   notes        String?
   propertyId   String?
   agentId      String?
+  address      String?       
+  cityZone     String?      
+  intent       String?       
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   appointments Appointment[]

@@ -22,21 +22,44 @@ export default function LeadDetailPage() {
     <div className="container py-5">
       <h1 className="mb-4">{lead.name}</h1>
       <dl className="row">
-        <dt className="col-sm-3">Email</dt><dd className="col-sm-9">{lead.email || '—'}</dd>
-        <dt className="col-sm-3">Teléfono</dt><dd className="col-sm-9">{lead.phone || '—'}</dd>
-        <dt className="col-sm-3">Fuente</dt><dd className="col-sm-9">{lead.source || '—'}</dd>
-        <dt className="col-sm-3">Estatus</dt><dd className="col-sm-9">{lead.status}</dd>
-        <dt className="col-sm-3">Propiedad</dt>
-        <dd className="col-sm-9">
-          {lead.property ? (
-            <Link href={`/dashboard/propiedades/${lead.property.id}`} className="text-decoration-none">
-              {lead.property.title}
-            </Link>
-          ) : '—'}
-        </dd>
-        <dt className="col-sm-3">Agente</dt><dd className="col-sm-9">{lead.agent?.name || '—'}</dd>
-        <dt className="col-sm-3">Notas</dt><dd className="col-sm-9">{lead.notes || '—'}</dd>
-      </dl>
+  <dt className="col-sm-3">Nombre completo</dt>
+  <dd className="col-sm-9">{lead.firstName} {lead.lastName}</dd>
+
+  <dt className="col-sm-3">Email</dt>
+  <dd className="col-sm-9">{lead.email || '—'}</dd>
+
+  <dt className="col-sm-3">Teléfono</dt>
+  <dd className="col-sm-9">{lead.phone || '—'}</dd>
+
+  <dt className="col-sm-3">Dirección</dt>
+  <dd className="col-sm-9">{lead.address || '—'}</dd>
+
+  <dt className="col-sm-3">Ciudad / Zona</dt>
+  <dd className="col-sm-9">{lead.cityZone || '—'}</dd>
+
+  <dt className="col-sm-3">Tipo de Operación</dt>
+  <dd className="col-sm-9">
+    {lead.intent === 'comprar' ? 'Comprar' : lead.intent === 'vender' ? 'Vender' : '—'}
+  </dd>
+
+  <dt className="col-sm-3">Fuente</dt>
+  <dd className="col-sm-9">{lead.source || '—'}</dd>
+
+  <dt className="col-sm-3">Estatus</dt>
+  <dd className="col-sm-9">{lead.status}</dd>
+
+  <dt className="col-sm-3">Propiedad</dt>
+  <dd className="col-sm-9">
+    {lead.property ? (
+      <Link href={`/dashboard/propiedades/${lead.property.id}`}>
+        {lead.property.title}
+      </Link>
+    ) : '—'}
+  </dd>
+
+  <dt className="col-sm-3">Notas</dt>
+  <dd className="col-sm-9">{lead.notes || '—'}</dd>
+</dl>
       <Link href={`/dashboard/leads/${id}/edit`} className="btn btn-secondary me-2">Editar</Link>
       <Link href="/dashboard/leads" className="btn btn-outline-secondary">Volver</Link>
     </div>
