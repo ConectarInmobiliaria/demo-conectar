@@ -19,7 +19,7 @@ export default function NosotrosPage() {
       ],
       image: '/equipo/paola.jpeg',
       alt: 'Retrato de Nidia Paola Gauna',
-      links: { linkedin: '#', instagram: '#' },
+      links: { facebook: 'https://www.facebook.com/share/1GRaFFadtn/', instagram: 'https://www.instagram.com/nidiagau?igsh=MXQ4aXhmOTRydDlpOQ==' },
       priority: true,
     },
     {
@@ -28,7 +28,7 @@ export default function NosotrosPage() {
       extra: [],
       image: '/equipo/fernando.jpeg',
       alt: 'Retrato de Fernando Javier Aguinaldo',
-      links: { linkedin: '#', instagram: '#' },
+      links: { facebook: '#', instagram: '#' },
       priority: true,
     },
     {
@@ -40,7 +40,7 @@ export default function NosotrosPage() {
       ],
       image: '/equipo/milton.jpeg',
       alt: 'Retrato de Milton M. De Campos',
-      links: { linkedin: '#', instagram: '#' },
+      links: { facebook: '#', instagram: '#' },
       priority: false,
     },
   ];
@@ -119,7 +119,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* Nuestro Equipo */}
-      <section className="container py-5">
+       <section className="container py-5">
         <h2 className="text-center mb-5">Nuestro Equipo</h2>
         <div className="row g-4">
           {team.map((member, idx) => (
@@ -134,7 +134,6 @@ export default function NosotrosPage() {
                     className="card-img-top object-fit-cover"
                     priority={member.priority}
                     sizes="(max-width: 576px) 100vw, 300px"
-                    {...(!member.priority && { loading: 'lazy' })}
                   />
                 </div>
                 <div className="card-body d-flex flex-column">
@@ -149,11 +148,11 @@ export default function NosotrosPage() {
                   )}
                   <div className="mt-auto d-flex gap-3">
                     <Link
-                      href={member.links.linkedin}
+                      href={member.links.facebook}
                       target="_blank"
-                      aria-label={`${member.name} en LinkedIn`}
+                      aria-label={`${member.name} en Facebook`}
                     >
-                      <i className="bi bi-linkedin fs-4 text-primary"></i>
+                      <i className="bi bi-facebook fs-4 text-primary"></i>
                     </Link>
                     <Link
                       href={member.links.instagram}

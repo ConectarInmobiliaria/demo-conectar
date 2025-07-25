@@ -34,13 +34,13 @@ export default function ContactoPage() {
             <a href="tel:+543764617711" className="text-decoration-none">3764 617711</a>
           </p>
           <div className="mt-4">
-            <Link href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ" target="_blank" className="me-3" aria-label="YouTube">
+            <Link href="#" target="_blank" className="me-3" aria-label="YouTube">
               <i className="bi bi-youtube fs-3 text-danger"></i>
             </Link>
-            <Link href="https://www.facebook.com/ConectarInmobiliaria" target="_blank" className="me-3" aria-label="Facebook">
+            <Link href="https://www.facebook.com/share/1ArTwrAaEZ/" target="_blank" className="me-3" aria-label="Facebook">
               <i className="bi bi-facebook fs-3 text-primary"></i>
             </Link>
-            <Link href="https://www.instagram.com/conectarinmobiliaria/" target="_blank" aria-label="Instagram">
+            <Link href="https://www.instagram.com/conectarinmobposadas?igsh=MXI0eG1tbzM5ZTZkZA==" target="_blank" aria-label="Instagram">
               <i className="bi bi-instagram fs-3 text-warning"></i>
             </Link>
           </div>
