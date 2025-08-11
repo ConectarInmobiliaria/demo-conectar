@@ -33,7 +33,7 @@ export default function NosotrosPage() {
     },
     {
       name: 'Milton M. De Campos',
-      title: 'Asesor',
+      title: 'Desarrollador Full Stck / Asesor Inmobiliario',
       extra: [
         'Experto en arquitectura de software y desarrollo de sistemas',
         '+20 años implementando soluciones tecnológicas para empresas líderes',

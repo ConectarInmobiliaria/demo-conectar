@@ -13,7 +13,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPropertyPage({ params }) {
-  const { id } = await params;
+  const { id } = params;
 
   let prop = null;
   try {

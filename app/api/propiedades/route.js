@@ -3,10 +3,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { customAlphabet } from 'nanoid'
-
-const letters = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3);
-const numbers = customAlphabet('0123456789', 3);
+import { v4 as uuidv4 } from 'uuid';
 
 function formatPrice(value) {
   return value.toLocaleString('es-AR', {
@@ -82,8 +79,8 @@ export async function POST(request) {
   }
 
   let code;
-  do {
-    code = letters() + numbers();
+ do {
+    code = uuidv4().split('-')[0].toUpperCase();
     const existing = await prisma.property.findUnique({ where: { code } });
     if (!existing) break;
   } while (true);
