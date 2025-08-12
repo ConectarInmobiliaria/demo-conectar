@@ -1,34 +1,33 @@
-'use client';
-
+// app/dashboard/propiedades/page.js
 import Link from 'next/link';
-import useSWR from 'swr';
-import PropertyRow from '@/components/dashboard/PropertyRow';
+import { prisma } from '@/lib/prisma';
 
-const fetcher = url => fetch(url).then(res => res.json());
+export const dynamic = 'force-dynamic';
 
-export default function DashboardPropiedadesPage() {
-  const { data: properties, error, mutate } = useSWR('/api/propiedades', fetcher);
-
-  if (error) return <p className="text-danger">Error al cargar propiedades</p>;
-  if (!properties) return <p>Cargando propiedades...</p>;
-
-  const handleDeleted = id => {
-    mutate(properties.filter(p => p.id !== id), false);
-  };
+export default async function DashboardPropiedadesPage({ searchParams }) {
+  let props = [];
+  try {
+    props = await prisma.property.findMany({
+      include: { category: true, creator: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (e) {
+    console.error('Error trayendo propiedades en DashboardPropiedadesPage:', e);
+  }
 
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="mb-0">Propiedades</h1>
+        <h1>Propiedades</h1>
         <Link href="/dashboard/propiedades/new" className="btn btn-primary">
           Nueva Propiedad
         </Link>
       </div>
       <div className="table-responsive">
-        <table className="table table-hover align-middle">
-          <thead className="table-light">
+        <table className="table table-striped align-middle">
+          <thead>
             <tr>
-              <th>Cod. Prop.</th>
+              <th>Cod. Prop.</th>           {/* ← Nueva columna */}
               <th>Título</th>
               <th>Categoría</th>
               <th>Precio</th>
@@ -39,7 +38,44 @@ export default function DashboardPropiedadesPage() {
             </tr>
           </thead>
           <tbody>
-            {properties.map(prop => <PropertyRow key={prop.id} property={prop} onDeleted={handleDeleted}/>)}
+            {props.map((prop) => (
+              <tr key={prop.id}>
+                <td className="text-monospace">{prop.id}</td>  {/* ← Muestra el código */}
+                <td>{prop.title}</td>
+                <td>{prop.category?.name}</td>
+                <td>
+                  {prop.currency === 'USD' ? '$' : 'AR$'}{' '}
+                  {prop.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </td>
+                <td>{prop.location}</td>
+                <td>
+                  {prop.creator
+                    ? [prop.creator.firstName, prop.creator.lastName].filter(Boolean).join(' ')
+                    : '—'}
+                </td>
+                <td>{new Date(prop.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <Link
+                    href={`/dashboard/propiedades/${prop.id}`}
+                    className="btn btn-sm btn-outline-info me-2"
+                  >
+                    Ver
+                  </Link>
+                  <Link
+                    href={`/dashboard/propiedades/${prop.id}/edit`}
+                    className="btn btn-sm btn-outline-secondary me-2"
+                  >
+                    Editar
+                  </Link>
+                  <Link
+                    href={`/dashboard/propiedades/${prop.id}/delete`}
+                    className="btn btn-sm btn-outline-danger"
+                  >
+                    Eliminar
+                  </Link>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

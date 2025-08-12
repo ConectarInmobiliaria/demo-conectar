@@ -34,7 +34,31 @@ export default async function HomePage() {
     <>
       <HeroClient />
       {/* Introducción */}
-      <section className="container py-5">{/* ... */}</section>
+<section className="container py-5">
+  <div className="row align-items-center gy-4">
+    <div className="col-lg-6">
+      <FadeInSectionClient>
+        <h2 className="fw-bold mb-3 text-primary">Tu nuevo hogar te espera</h2>
+        <p className="lead">
+          Te ayudamos a encontrar la propiedad de tus sueños, ya sea para comprar o alquilar.
+          En nuestro sitio web, tienes acceso a una amplia variedad de casas, departamentos y terrenos
+          en distintos puntos de la ciudad de Posadas y alrededores, así como opciones en provincias aledañas.
+        </p>
+      </FadeInSectionClient>
+    </div>
+    <div className="col-lg-6">
+      <FadeInSectionClient delay={0.2}>
+        <h2 className="fw-bold mb-3 text-primary">Vende o alquila tu propiedad con nosotros</h2>
+        <p className="lead">
+          Si buscas vender o alquilar tu inmueble, confía en nosotros. Te ofrecemos una plataforma
+          donde tu propiedad recibirá la máxima visibilidad. Nuestros expertos te guiarán en cada paso
+          para asegurar una transacción rápida y exitosa.
+        </p>
+      </FadeInSectionClient>
+    </div>
+  </div>
+</section>
+
       {/* Destacados */}
       <section className="container py-5">
         {catWithProps.map(({ category, properties }) => (

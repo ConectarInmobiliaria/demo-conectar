@@ -2,49 +2,45 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import styles from './HeroClient.module.css';
 
 export default function HeroClient() {
   return (
-    <section className="relative w-screen min-h-[400px] max-h-[600px] h-[60vh] flex items-center justify-center overflow-hidden">
-      {/* Video de fondo */}
-      <video
-        className="absolute top-0 left-0 w-full h-full object-cover brightness-75"
-        src="/hero.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
-
-      {/* Overlay */}
-      <div className="absolute top-0 left-0 w-full h-full bg-green-800/40 backdrop-blur-sm" />
-
-      {/* Contenido */}
-      <div className="relative z-10 w-full max-w-[600px] px-4 text-center text-white">
+    <section className={styles.heroSection}>
+      <div className={styles.videoWrapper}>
+        <video
+          className={styles.video}
+          src="/hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className={styles.overlay} />
+      </div>
+      <div className={`${styles.content} text-center text-white px-3`}>
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-bold"
+          className="display-5 fw-bold"
         >
-          Bienvenido a Conectar Inmobiliaria
+          Bienvenido a Conectar Inmobiliaria!
         </motion.h1>
-
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="mt-3 text-lg md:text-xl"
+          className="lead"
         >
           Gestionamos tu propiedad con profesionalismo y cercanía.
         </motion.p>
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <Link href="/propiedades" className="btn btn-primary mt-4">
+          <Link href="/propiedades" className="btn btn-primary mt-3">
             Explorar Propiedades
           </Link>
         </motion.div>
