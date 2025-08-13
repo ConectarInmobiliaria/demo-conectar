@@ -29,10 +29,32 @@ export default function ContactoPage() {
             />
           </div>
           <p><i className="bi bi-geo-alt me-2"></i>Av. Padre Kolping y Av. López y Planes, Posadas, Misiones</p>
+          
+          {/* Teléfonos */}
           <p>
             <i className="bi bi-telephone-fill me-2"></i>
-            <a href="tel:+543764617711" className="text-decoration-none">3764 617711</a>
+            <a href="tel:+543764828008" className="text-decoration-none">3764 828008</a>
           </p>
+          <p>
+            <i className="bi bi-telephone-fill me-2"></i>
+            <a href="tel:+543764728717" className="text-decoration-none">3764 728717</a>
+          </p>
+
+          {/* WhatsApp directos */}
+          <p>
+            <i className="bi bi-whatsapp me-2 text-success"></i>
+            <a href="https://wa.me/543764828008" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+              WhatsApp 3764 828008
+            </a>
+          </p>
+          <p>
+            <i className="bi bi-whatsapp me-2 text-success"></i>
+            <a href="https://wa.me/543764728717" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+              WhatsApp 3764 728717
+            </a>
+          </p>
+
+          {/* Redes sociales */}
           <div className="mt-4">
             <Link href="#" target="_blank" className="me-3" aria-label="YouTube">
               <i className="bi bi-youtube fs-3 text-danger"></i>

@@ -9,7 +9,8 @@ export default function ContactForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const text = `Nombre: ${name}%0AEmail: ${email}%0AMensaje: ${message}`;
-    window.open(`https://wa.me/3764617711?text=${encodeURIComponent(text)}`, '_blank');
+    // WhatsApp al primer número
+    window.open(`https://wa.me/543764828008?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
