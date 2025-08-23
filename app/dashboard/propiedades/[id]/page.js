@@ -1,3 +1,4 @@
+// app/dashboard/propiedades/[id]/page.js
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import SwiperGalleryWithThumbs from '@/components/Gallery/SwiperGalleryWithThumbs';
@@ -40,47 +41,65 @@ export default async function DashboardPropertyPage({ params }) {
 
   return (
     <div className="container py-5">
-      <h1 className="mb-4 text-primary">{prop.title}</h1>
+      {/* Header con título y precio */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <h1 className="text-primary mb-3 mb-md-0">{prop.title}</h1>
+        <h3 className="text-success fw-bold">
+          {prop.currency} {prop.price.toLocaleString()}
+        </h3>
+      </div>
 
-      <SwiperGalleryWithThumbs images={images} title={prop.title} />
+      {/* Galería */}
+      <div className="mb-4">
+        <SwiperGalleryWithThumbs images={images} title={prop.title} />
+      </div>
 
+      {/* Detalles */}
       <div className="card p-4 shadow-sm border-0 mb-4">
-        <p className="mb-3 text-muted">{prop.description}</p>
-
-        <div className="row gy-2">
-          <div className="col-md-4 d-flex align-items-center">
-            <FaMoneyBill className="me-2 text-success" />
-            <strong className="me-1">Precio:</strong> {prop.currency} {prop.price.toLocaleString()}
-          </div>
-          <div className="col-md-4 d-flex align-items-center">
+        <div className="row gy-3">
+          <div className="col-md-6 d-flex align-items-center">
             <FaMapMarkerAlt className="me-2 text-danger" />
-            <strong className="me-1">Ubicación:</strong> {prop.location}, {prop.city}
+            <span>
+              <strong>Ubicación:</strong> {prop.location}, {prop.city}
+            </span>
           </div>
-          <div className="col-md-4 d-flex align-items-center">
+          <div className="col-md-6 d-flex align-items-center">
             <FaMapMarkerAlt className="me-2 text-danger" />
-            <strong className="me-1">Dirección:</strong> {prop.address}
+            <span>
+              <strong>Dirección:</strong> {prop.address}
+            </span>
           </div>
           <div className="col-md-4 d-flex align-items-center">
-            <FaBed className="me-2" />
-            <strong className="me-1">Dormitorios:</strong> {prop.bedrooms ?? '-'}
+            <FaBed className="me-2 text-primary" />
+            <span>
+              <strong>Dormitorios:</strong> {prop.bedrooms ?? '-'}
+            </span>
           </div>
           <div className="col-md-4 d-flex align-items-center">
-            <FaBath className="me-2" />
-            <strong className="me-1">Baños:</strong> {prop.bathrooms ?? '-'}
+            <FaBath className="me-2 text-info" />
+            <span>
+              <strong>Baños:</strong> {prop.bathrooms ?? '-'}
+            </span>
           </div>
           <div className="col-md-4 d-flex align-items-center">
-            <FaCar className="me-2" />
-            <strong className="me-1">Garage:</strong> {prop.garage ? 'Sí' : 'No'}
+            <FaCar className="me-2 text-secondary" />
+            <span>
+              <strong>Garage:</strong> {prop.garage ? 'Sí' : 'No'}
+            </span>
           </div>
           {prop.expenses !== null && (
             <div className="col-md-4 d-flex align-items-center">
-              <FaMoneyBill className="me-2" />
-              <strong className="me-1">Expensas:</strong> AR$ {prop.expenses.toLocaleString()}
+              <FaMoneyBill className="me-2 text-success" />
+              <span>
+                <strong>Expensas:</strong> AR$ {prop.expenses.toLocaleString()}
+              </span>
             </div>
           )}
           {prop.category && (
             <div className="col-md-4 d-flex align-items-center">
-              <strong className="me-1">Categoría:</strong> {prop.category.name}
+              <span>
+                <strong>Categoría:</strong> {prop.category.name}
+              </span>
             </div>
           )}
           {prop.videoUrl && (
@@ -99,9 +118,18 @@ export default async function DashboardPropertyPage({ params }) {
         </div>
       </div>
 
-      <Link href="/dashboard/propiedades" className="btn btn-outline-secondary">
-        ← Volver al listado
-      </Link>
+      {/* Descripción */}
+      <div className="card p-4 shadow-sm border-0 mb-4">
+        <h5 className="text-secondary mb-3">Descripción</h5>
+        <p className="mb-0">{prop.description}</p>
+      </div>
+
+      {/* Botón volver */}
+      <div className="text-end">
+        <Link href="/dashboard/propiedades" className="btn btn-outline-secondary">
+          ← Volver al listado
+        </Link>
+      </div>
     </div>
   );
 }
