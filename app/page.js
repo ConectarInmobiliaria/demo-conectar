@@ -33,37 +33,26 @@ export default async function HomePage() {
   return (
     <>
       <HeroClient />
-      {/* Introducción */}
-<section className="container py-5">
-  <div className="row align-items-center gy-4">
-    <div className="col-lg-6">
-      <FadeInSectionClient>
-        <h2 className="fw-bold mb-3 text-primary">Tu hogar te espera</h2>
-        <p className="lead">
-          Te ayudamos a encontrar la propiedad de tus sueños, ya sea para comprar o alquilar.
-          En nuestro sitio web, tienes acceso a una amplia variedad de casas, departamentos y terrenos
-          en distintos puntos de la ciudad de Posadas y alrededores, así como opciones en provincias aledañas.
-        </p>
-      </FadeInSectionClient>
-    </div>
-    <div className="col-lg-6">
-      <FadeInSectionClient delay={0.2}>
-        <h2 className="fw-bold mb-3 text-primary">Administra tu propiedad con nosotros</h2>
-        <p className="lead">
-          Si buscas vender o alquilar tu inmueble, confía en nosotros. Te ofrecemos una plataforma
-          donde tu propiedad recibirá la máxima visibilidad. Nuestros expertos te guiarán en cada paso
-          para asegurar una transacción rápida y exitosa.
-        </p>
-      </FadeInSectionClient>
-    </div>
-  </div>
-</section>
 
-      {/* Destacados */}
+      {/* Sección 1: Tu hogar te espera */}
+      <section className="container py-5">
+        <FadeInSectionClient>
+          <div className="card shadow-lg border-0 rounded-3 p-5 text-center">
+            <h2 className="fw-bold mb-3 text-primary">Tu hogar te espera</h2>
+            <p className="lead text-muted">
+              Te ayudamos a encontrar la propiedad de tus sueños, ya sea para comprar o alquilar.
+              Accedé a una amplia variedad de casas, departamentos y terrenos en Posadas y alrededores,
+              así como opciones en provincias cercanas.
+            </p>
+          </div>
+        </FadeInSectionClient>
+      </section>
+
+      {/* Sección 2: Propiedades destacadas */}
       <section className="container py-5">
         {catWithProps.map(({ category, properties }) => (
           <div key={category.id} className="mb-5">
-            <FadeInHeadingClient as="h3" className="mb-3">
+            <FadeInHeadingClient as="h3" className="mb-4 text-primary fw-bold">
               {category.name}
             </FadeInHeadingClient>
             {properties.length === 0 ? (
@@ -72,29 +61,35 @@ export default async function HomePage() {
               <div className="row">
                 {properties.map(prop => (
                   <div key={prop.id} className="col-md-4 mb-4">
-                    <HoverScaleClient className="card h-100 shadow-sm">
+                    <HoverScaleClient className="card h-100 shadow-sm border-0">
                       {prop.imageUrl ? (
                         <Image
                           src={prop.imageUrl}
                           alt={prop.title}
-                          width={300}
-                          height={450}
-                          className="card-img-top"
+                          width={400}
+                          height={250}
+                          className="card-img-top rounded-top"
                           style={{ objectFit: 'cover' }}
                         />
                       ) : (
                         <div
-                          className="bg-secondary text-white d-flex align-items-center justify-content-center"
+                          className="bg-secondary text-white d-flex align-items-center justify-content-center rounded-top"
                           style={{ height: '200px' }}
                         >
                           Sin imagen
                         </div>
                       )}
                       <div className="card-body d-flex flex-column">
-                        <h5 className="card-title">{prop.title}</h5>
-                        <p className="card-text text-truncate">{prop.description}</p>
-                        <div className="mt-auto">
-                          <Link href={`/propiedades/${prop.id}`} className="btn btn-sm btn-outline-primary">
+                        <h5 className="card-title fw-semibold">{prop.title}</h5>
+                        <p className="card-text text-muted small line-clamp-3">{prop.description}</p>
+                        <div className="d-flex justify-content-between align-items-center mt-2 text-sm">
+                          <span className="fw-bold text-primary">${prop.price.toLocaleString()}</span>
+                          <span className="text-muted">
+                            🛏 {prop.bedrooms || 0} &nbsp; | &nbsp; 🚿 {prop.bathrooms || 0}
+                          </span>
+                        </div>
+                        <div className="mt-auto pt-3">
+                          <Link href={`/propiedades/${prop.id}`} className="btn btn-sm btn-outline-primary w-100">
                             Ver detalles
                           </Link>
                         </div>
@@ -111,6 +106,19 @@ export default async function HomePage() {
             </div>
           </div>
         ))}
+      </section>
+
+      {/* Sección 3: Administra tu propiedad */}
+      <section className="container py-5">
+        <FadeInSectionClient>
+          <div className="card shadow-lg border-0 rounded-3 p-5 text-center bg-light">
+            <h2 className="fw-bold mb-3 text-primary">Administra tu propiedad con nosotros</h2>
+            <p className="lead text-muted">
+              ¿Querés vender o alquilar tu inmueble? Confía en nosotros. Tu propiedad tendrá la máxima visibilidad
+              y recibirás el acompañamiento de nuestros expertos para asegurar una transacción rápida y exitosa.
+            </p>
+          </div>
+        </FadeInSectionClient>
       </section>
     </>
   );
