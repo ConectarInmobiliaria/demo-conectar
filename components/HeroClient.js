@@ -10,7 +10,7 @@ export default function HeroClient() {
       <div className={styles.videoWrapper}>
         <video
           className={styles.video}
-          src="/hero.mp4"
+          src="/hero-posadas.mp4"
           autoPlay
           muted
           loop
