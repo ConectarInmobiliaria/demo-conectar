@@ -1,71 +1,70 @@
-// components/ChatbotWidget.js
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]); // array de { from: 'bot' | 'user', text: string }
+  const [messages, setMessages] = useState([]);
   const [awaitingOption, setAwaitingOption] = useState(false);
+  const [showIntroBubble, setShowIntroBubble] = useState(false);
   const scrollRef = useRef(null);
 
-  // Al abrir el chat por primera vez, mandar saludo inicial
+  // Mostrar globo de presentación a los 40s
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntroBubble(true);
+    }, 40000); // 40 segundos
+    return () => clearTimeout(timer);
+  }, []);
+
   const openChat = () => {
-    if (!isOpen) {
-      setIsOpen(true);
-      setTimeout(() => {
-        const greeting = {
-          from: 'bot',
-          text: '¡Hola! 👋 Soy Coni. ¿En qué te puedo ayudar hoy?',
-        };
-        const optionsPrompt = {
-          from: 'bot',
-          text: 'Selecciona una opción:',
-        };
-        setMessages([greeting, optionsPrompt]);
-        setAwaitingOption(true);
-      }, 300);
-    }
+    setIsOpen(true);
+    setShowIntroBubble(false); // ocultar el globo cuando se abre
+    setTimeout(() => {
+      const greeting = {
+        from: 'bot',
+        text: '¡Hola! 👋 Soy Coni-E, tu asistente de Conectar Inmobiliaria. ¿En qué te puedo ayudar hoy?',
+      };
+      const optionsPrompt = {
+        from: 'bot',
+        text: 'Selecciona una opción:',
+      };
+      setMessages([greeting, optionsPrompt]);
+      setAwaitingOption(true);
+    }, 300);
   };
 
-  // Auto‐scroll al fondo cada vez que cambia `messages`
+  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Cuando el usuario elige una opción
   const handleOption = (optionText) => {
-    // 1) Agregar el mensaje del usuario
     setMessages((prev) => [...prev, { from: 'user', text: optionText }]);
     setAwaitingOption(false);
 
-    // 2) Respuesta automática tras un breve retraso
     setTimeout(() => {
       let botReply;
       switch (optionText) {
         case 'Tasaciones':
           botReply = {
             from: 'bot',
-            text:
-              'Realizamos tasaciones profesionales basadas en más de 30 años de experiencia. ¿Querés que te enviemos más info?',
+            text: 'Realizamos tasaciones profesionales basadas en más de 30 años de experiencia. ¿Querés que te enviemos más info?',
           };
           break;
-        case 'Administración':
+        case 'Administración de Propiedades':
           botReply = {
             from: 'bot',
-            text:
-              'Ofrecemos administración integral de tus inmuebles: alquileres, mantenimiento y cobros. ¿Te gustaría contactarte ahora?',
+            text: 'Ofrecemos administración integral de tus inmuebles: alquileres, mantenimiento y cobros. ¿Te gustaría contactarte ahora?',
           };
           break;
-        case 'Venta':
+        case 'Comercialización de Alquileres':
           botReply = {
             from: 'bot',
-            text:
-              'Nos encargamos de publicar y gestionar tu alquiler. Filtramos postulantes y garantizamos cobros. ¿Te gustaría hablar con un asesor?',
+            text: 'Nos encargamos de publicar y gestionar tu alquiler. Filtramos postulantes y garantizamos cobros. ¿Te gustaría hablar con un asesor?',
           };
           break;
         default:
@@ -76,11 +75,9 @@ export default function ChatbotWidget() {
           break;
       }
 
-      // 3) Agregar la respuesta del bot y luego mostrar CTA
       setMessages((prev) => [...prev, botReply]);
 
       setTimeout(() => {
-        // Mensaje final con CTA
         const finalMsg = {
           from: 'bot',
           text: 'Podés escribirnos por WhatsApp o completar el formulario de contacto:',
@@ -90,7 +87,6 @@ export default function ChatbotWidget() {
     }, 700);
   };
 
-  // Renderiza el listado de mensajes
   const renderMessages = () =>
     messages.map((m, i) => (
       <div
@@ -112,23 +108,32 @@ export default function ChatbotWidget() {
 
   return (
     <>
-      {/* 1) Botón flotante (logo circular) con animación de flotación */}
-      <motion.div
+      {/* Botón flotante */}
+      <div
         className="position-fixed"
         style={{
           bottom: '20px',
           right: '50px',
           zIndex: 1050,
         }}
-        animate={{
-          y: [0, -10, 0],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
       >
+        {/* Globo de presentación */}
+        {showIntroBubble && !isOpen && (
+          <div
+            className="bg-light border rounded shadow p-2 mb-2"
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              right: '0',
+              width: '220px',
+              fontSize: '0.9rem',
+            }}
+          >
+            👋 ¡Hola! Soy <strong>Coni-E</strong>, la asistente virtual de <strong>Conectar Inmobiliaria</strong>.  
+            ¿En qué puedo ayudarte?
+          </div>
+        )}
+
         <button
           onClick={openChat}
           className="rounded-circle border-0"
@@ -142,9 +147,9 @@ export default function ChatbotWidget() {
           }}
           aria-label="Abrir chat"
         />
-      </motion.div>
+      </div>
 
-      {/* 2) Ventana del chat */}
+      {/* Ventana del chat */}
       {isOpen && (
         <div
           className="position-fixed bg-white border rounded shadow d-flex flex-column"
@@ -156,9 +161,8 @@ export default function ChatbotWidget() {
             zIndex: 1040,
           }}
         >
-          {/* Header del chat */}
           <div className="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
-            <strong>ChatBot Conectar</strong>
+            <strong>Coni-E • ChatBot</strong>
             <button
               onClick={() => setIsOpen(false)}
               className="btn btn-sm btn-light text-primary"
@@ -168,7 +172,6 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
-          {/* Cuerpo: mensajes */}
           <div
             className="flex-grow-1 p-2 overflow-auto"
             ref={scrollRef}
@@ -176,7 +179,6 @@ export default function ChatbotWidget() {
           >
             {renderMessages()}
 
-            {/* Botones de opciones (solo si estamos esperando que el usuario elija) */}
             {awaitingOption && (
               <div className="mt-2">
                 {['Tasaciones', 'Administración de Propiedades', 'Comercialización de Alquileres'].map((opt) => (
@@ -191,11 +193,8 @@ export default function ChatbotWidget() {
               </div>
             )}
 
-            {/* Botones de CTA (aparecen luego de la respuesta del bot final) */}
             {!awaitingOption &&
-              messages.some((m) =>
-                m.text.toLowerCase().includes('whatsapp')
-              ) && (
+              messages.some((m) => m.text.toLowerCase().includes('whatsapp')) && (
                 <div className="mt-3">
                   <a
                     href="https://wa.me/543764728718"
@@ -216,4 +215,3 @@ export default function ChatbotWidget() {
     </>
   );
 }
-
