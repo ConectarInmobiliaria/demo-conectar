@@ -49,8 +49,8 @@ export default function ContactoPage() {
           </p>
           <p>
             <i className="bi bi-whatsapp me-2 text-success"></i>
-            <a href="https://wa.me/543764728717" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
-              WhatsApp 3764 728717
+            <a href="https://wa.me/543764728718" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+              WhatsApp 3764 728718
             </a>
           </p>
 
