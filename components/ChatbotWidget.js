@@ -136,7 +136,7 @@ export default function ChatbotWidget() {
             width: '80px',
             height: '100px',
             backgroundColor: 'transparent',
-            backgroundImage: "url('/logochat.png')",
+            backgroundImage: "url('/coni-e.png')",
             backgroundSize: 'cover',
             cursor: 'pointer',
           }}
@@ -198,7 +198,7 @@ export default function ChatbotWidget() {
               ) && (
                 <div className="mt-3">
                   <a
-                    href="https://wa.me/543764617711"
+                    href="https://wa.me/543764728718"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-success btn-sm w-100 mb-2"
