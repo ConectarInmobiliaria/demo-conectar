@@ -3,12 +3,34 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import styles from './HeroClient.module.css';
+import { useRef, useEffect } from 'react';
 
 export default function HeroClient() {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Forzar que siempre arranque en el segundo 6
+    const handlePlay = () => {
+      if (video.currentTime < 6) {
+        video.currentTime = 6;
+      }
+    };
+
+    video.addEventListener('play', handlePlay);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+    };
+  }, []);
+
   return (
     <section className={styles.heroSection}>
       <div className={styles.videoWrapper}>
         <video
+          ref={videoRef}
           className={styles.video}
           src="/hero-posadas.mp4"
           autoPlay
@@ -16,7 +38,6 @@ export default function HeroClient() {
           loop
           playsInline
         />
-        <div className={styles.overlay} />
       </div>
       <div className={`${styles.content} text-center text-white px-3`}>
         <motion.h1
