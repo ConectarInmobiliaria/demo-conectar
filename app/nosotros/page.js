@@ -5,7 +5,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Nosotros | Conectar Inmobiliaria",
   description:
-    "Conoce a Conectar Inmobiliaria: visión, misión y nuestro equipo.",
+    "Conoce a Conectar Inmobiliaria: visión, misión, valores y nuestro equipo.",
 };
 
 export default function NosotrosPage() {
@@ -28,36 +28,21 @@ export default function NosotrosPage() {
 
   return (
     <div>
-      {/* Visión y Misión */}
+      {/* Quiénes Somos */}
       <section className="container py-5">
-        <h2 className="text-center fw-bold mb-5">Visión y Misión</h2>
+        <h2 className="text-center fw-bold mb-4">Quiénes Somos</h2>
+        <p className="text-secondary fs-5 text-center px-3">
+          Conectar Inmobiliaria es más que una agencia, somos tu socio en el camino
+          de encontrar el lugar perfecto para vivir o invertir. Nos dedicamos a conectar
+          personas con sus sueños a través de un servicio transparente, profesional y de
+          alta calidad. Nuestro equipo está formado por expertos comprometidos en ofrecerte
+          una experiencia inmobiliaria sin estrés, adaptada a tus necesidades.
+        </p>
+      </section>
 
-        <div className="row g-4 mb-5">
-          {/* Visión */}
-          <div className="col-md-6">
-            <div className="card h-100 shadow-lg border-0 rounded-4 overflow-hidden">
-              <Image
-                src="/nosotros/vision.gif"
-                alt="Imagen ilustrativa de la visión de Conectar Inmobiliaria"
-                width={600}
-                height={300}
-                className="w-100 object-fit-cover"
-                priority
-              />
-              <div className="card-body p-4">
-                <h3 className="card-title fw-semibold mb-3">Nuestra Visión</h3>
-                <p className="card-text text-secondary">
-                  Ser la inmobiliaria referente en el noreste argentino,
-                  incorporando tecnología de vanguardia para ofrecer experiencias
-                  ágiles y transparentes. Creemos que{" "}
-                  <strong>“la llave está en tus manos”</strong> para encontrar el
-                  espacio ideal, pues <strong>“tu vida merece un lugar”</strong>{" "}
-                  donde crecer, prosperar y construir sueños.
-                </p>
-              </div>
-            </div>
-          </div>
-
+      {/* Misión y Visión */}
+      <section className="container py-5">
+        <div className="row g-4">
           {/* Misión */}
           <div className="col-md-6">
             <div className="card h-100 shadow-lg border-0 rounded-4 overflow-hidden">
@@ -72,26 +57,64 @@ export default function NosotrosPage() {
               <div className="card-body p-4">
                 <h3 className="card-title fw-semibold mb-3">Nuestra Misión</h3>
                 <p className="card-text text-secondary">
-                  Poner al servicio de nuestros clientes más de 15 años de
-                  experiencia en negocios inmobiliarios en el noreste argentino.
-                  Ofrecemos un trato cercano y personalizado, gestión integral y
-                  administración de propiedades en Posadas y las principales
-                  ciudades de Misiones. Con profesionalismo y ética, acompañamos
-                  cada paso para que cada proyecto inmobiliario sea un éxito.
+                  Facilitar la compra, venta y alquiler de propiedades, creando
+                  conexiones significativas entre personas y sus futuros hogares.
+                  Nos esforzamos por ser la inmobiliaria de referencia, destacándonos
+                  por nuestro profesionalismo, honestidad y un profundo conocimiento
+                  del mercado.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Visión */}
+          <div className="col-md-6">
+            <div className="card h-100 shadow-lg border-0 rounded-4 overflow-hidden">
+              <Image
+                src="/nosotros/vision.gif"
+                alt="Imagen ilustrativa de la visión de Conectar Inmobiliaria"
+                width={600}
+                height={300}
+                className="w-100 object-fit-cover"
+                priority
+              />
+              <div className="card-body p-4">
+                <h3 className="card-title fw-semibold mb-3">Nuestra Visión</h3>
+                <p className="card-text text-secondary">
+                  Ser líderes en el mercado inmobiliario, reconocidos por nuestra
+                  innovación, excelencia en el servicio al cliente y por ser la
+                  primera opción para quienes buscan soluciones inmobiliarias confiables.
+                  Queremos ser un pilar de confianza y crecimiento en la comunidad,
+                  ayudando a construir el futuro de nuestros clientes.
                 </p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <p className="text-center text-muted fs-5 px-3">
-          En Conectar Inmobiliaria, nuestra trayectoria nos respalda y nuestra
-          pasión nos impulsa: combinamos conocimiento local con herramientas
-          digitales para facilitar cada operación. Creemos en la innovación
-          continua, en la confianza como pilar y en la cercanía como valor
-          diferencial. Porque más que propiedades, construimos relaciones y
-          abrimos puertas a nuevas oportunidades.
-        </p>
+      {/* Valores */}
+      <section className="container py-5">
+        <h2 className="text-center fw-bold mb-4">Nuestros Valores</h2>
+        <ul className="list-unstyled fs-5 text-secondary px-3">
+          <li className="mb-2">
+            <strong>• Honestidad:</strong> Actuamos con total transparencia en cada
+            transacción, construyendo relaciones de confianza a largo plazo.
+          </li>
+          <li className="mb-2">
+            <strong>• Profesionalismo:</strong> Nos formamos y actualizamos constantemente
+            para ofrecer el mejor asesoramiento y servicio, garantizando resultados exitosos.
+          </li>
+          <li className="mb-2">
+            <strong>• Compromiso:</strong> Nos dedicamos por completo a nuestros clientes,
+            trabajando incansablemente para superar sus expectativas y lograr sus objetivos.
+          </li>
+          <li>
+            <strong>• Empatía:</strong> Entendemos que cada cliente tiene una historia
+            y una necesidad única. Nos ponemos en su lugar para ofrecer soluciones
+            personalizadas y humanas.
+          </li>
+        </ul>
       </section>
 
       {/* Nidia - Tarjeta Horizontal */}
@@ -113,7 +136,10 @@ export default function NosotrosPage() {
             <div className="col-md-7">
               <div className="card-body p-4 d-flex flex-column h-100">
                 <h3 className="card-title fw-bold mb-3">{member.name}</h3>
-                <p className="card-text text-secondary" style={{ whiteSpace: "pre-line" }}>
+                <p
+                  className="card-text text-secondary"
+                  style={{ whiteSpace: "pre-line" }}
+                >
                   {member.bio}
                 </p>
                 <div className="mt-auto d-flex gap-3 pt-3">
