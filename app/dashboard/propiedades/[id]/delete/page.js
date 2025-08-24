@@ -5,17 +5,18 @@ import { useState } from 'react';
 
 export default function DeletePropertyPage({ params }) {
   const router = useRouter();
-  const { id } = params; // id dinámico
+  const { id } = params;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleDelete = async () => {
     setLoading(true);
+    setError('');
     try {
       const res = await fetch(`/api/propiedades/${id}`, { method: 'DELETE' });
       if (!res.ok) {
         const json = await res.json();
-        throw new Error(json.error || 'Error al eliminar');
+        throw new Error(json.error || 'Error al eliminar la propiedad');
       }
       router.push('/dashboard/propiedades');
     } catch (e) {
@@ -28,19 +29,37 @@ export default function DeletePropertyPage({ params }) {
 
   return (
     <div className="container py-5">
-      <h1 className="mb-4">Eliminar Propiedad</h1>
-      {error && <p className="text-danger">{error}</p>}
-      <p>¿Estás seguro que deseas eliminar la propiedad con ID {id}?</p>
-      <button
-        className="btn btn-danger me-2"
-        onClick={handleDelete}
-        disabled={loading}
-      >
-        {loading ? 'Eliminando...' : 'Sí, eliminar'}
-      </button>
-      <button className="btn btn-secondary" onClick={() => router.back()}>
-        Cancelar
-      </button>
+      <div className="card shadow border-0 rounded-3 p-4">
+        <h1 className="mb-4 text-danger fw-bold">Eliminar Propiedad</h1>
+
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        )}
+
+        <p className="mb-4">
+          ¿Estás seguro que deseas <strong>eliminar</strong> la propiedad con ID <code>{id}</code>?<br />
+          Esta acción no se puede deshacer.
+        </p>
+
+        <div className="d-flex gap-3">
+          <button
+            className="btn btn-danger px-4"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            {loading ? 'Eliminando...' : 'Sí, eliminar'}
+          </button>
+          <button
+            className="btn btn-secondary px-4"
+            onClick={() => router.back()}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
