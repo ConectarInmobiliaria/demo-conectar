@@ -32,7 +32,7 @@ export default function HeroClient() {
         <video
           ref={videoRef}
           className={styles.video}
-          src="/hero-posadas.mp4"
+          src="/posadas.mp4"
           autoPlay
           muted
           loop

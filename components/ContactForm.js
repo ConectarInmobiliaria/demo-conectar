@@ -10,7 +10,7 @@ export default function ContactForm() {
     e.preventDefault();
     const text = `Nombre: ${name}%0AEmail: ${email}%0AMensaje: ${message}`;
     // WhatsApp al primer número
-    window.open(`https://wa.me/543764828008?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/543764728718?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (

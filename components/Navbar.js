@@ -47,6 +47,7 @@ export default function Navbar() {
       <div className="bg-white">
         <div className="container py-2 d-flex flex-wrap align-items-center gap-3">
           {/* Logo (siempre a la izquierda) */}
+           <div><br></br></div>
           <Link
             href="/"
             className="d-flex align-items-center me-auto"
@@ -103,10 +104,10 @@ export default function Navbar() {
             </Link>
           </div>
         </div>
+        <div><br></br></div>
       </div>
-
      {/* --- Main Nav Bar --- */}
-<nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#d4edda' }}>
+<nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#ffffff' }}>
   <div className="container">
     {/* Botón hamburguesa */}
     <button
