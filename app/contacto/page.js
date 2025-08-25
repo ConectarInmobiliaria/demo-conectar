@@ -37,7 +37,7 @@ export default function ContactoPage() {
           </p>
           <p>
             <i className="bi bi-telephone-fill me-2"></i>
-            <a href="tel:+543764728717" className="text-decoration-none">3764 728717</a>
+            <a href="tel:+543764728718" className="text-decoration-none">3764 728718</a>
           </p>
 
           {/* WhatsApp directos */}
