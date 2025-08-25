@@ -54,7 +54,7 @@ export default function HeroClient() {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="lead"
         >
-          Gestionamos tu propiedad con profesionalismo y cercanía.
+          ¿Necesitas ayuda para encontrar el hogar de tus sueños?. Estamos listos para asistirte.
         </motion.p>
         <motion.div
           initial={{ opacity: 0 }}
