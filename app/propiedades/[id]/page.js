@@ -25,7 +25,7 @@ export default async function PropertyDetailPage({ params }) {
   const whatsappText = encodeURIComponent(
     `Hola, estoy interesado en "${prop.title}" (ID: ${prop.id}).\n${siteUrl}/propiedades/${prop.id}`
   );
-  const whatsappUrl = `https://wa.me/5493764579547?text=${whatsappText}`;
+  const whatsappUrl = `https://wa.me/5493764728718?text=${whatsappText}`;
 
   return (
     <div className="container py-5">

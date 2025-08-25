@@ -9,7 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 
 const PHONE_MAIN = '3764828008';
 const PHONE_ALT = '3764728718';
-const EMAIL = 'nidiaccpim50@gmail.com';
+const EMAIL = 'conectarinmobposadas@gmail.com';
 const FACEBOOK_URL = 'https://www.facebook.com/share/1ArTwrAaEZ/';
 const INSTAGRAM_URL =
   'https://www.instagram.com/conectarinmobposadas?igsh=MXI0eG1tbzM5ZTZkZA==';
