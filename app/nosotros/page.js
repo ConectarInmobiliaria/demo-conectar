@@ -32,10 +32,8 @@ export default function NosotrosPage() {
       <section className="container py-5">
         <h2 className="text-center fw-bold mb-4">Quiénes Somos</h2>
         <p className="text-secondary fs-5 text-center px-3">
-          Conectar Inmobiliaria es más que una agencia, somos tu socio en el camino
-          de encontrar el lugar perfecto para vivir o invertir. Nos dedicamos a conectar
-          personas con sus sueños a través de un servicio transparente, profesional y de
-          alta calidad. Nuestro equipo está formado por expertos comprometidos en ofrecerte
+          Somos tu socio en el camino de encontrar el lugar perfecto para vivir o invertir. Nos dedicamos a conectar
+          personas con sus sueños a través de un servicio transparente, profesional y de alta calidad. Nuestro equipo está formado por expertos comprometidos en ofrecerte
           una experiencia inmobiliaria sin estrés, adaptada a tus necesidades.
         </p>
       </section>
