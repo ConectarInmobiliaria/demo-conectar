@@ -1,3 +1,4 @@
+// components/ChatbotWidget.js
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -10,27 +11,21 @@ export default function ChatbotWidget() {
   const [showIntroBubble, setShowIntroBubble] = useState(false);
   const scrollRef = useRef(null);
 
-  // Mostrar globo de presentación a los 40s
+  // Globo de presentación a los 40s
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowIntroBubble(true);
-    }, 40000); // 40 segundos
+    const timer = setTimeout(() => setShowIntroBubble(true), 40000);
     return () => clearTimeout(timer);
   }, []);
 
   const openChat = () => {
     setIsOpen(true);
-    setShowIntroBubble(false); // ocultar el globo cuando se abre
+    setShowIntroBubble(false);
     setTimeout(() => {
       const greeting = {
         from: 'bot',
-        text: '¡Hola! 👋 Soy Coni-E, tu asistente de Conectar Inmobiliaria. ¿En qué te puedo ayudar hoy?',
+        text: '¡Hola! 👋 Soy Coni-E, tu asistente de Conectar Inmobiliaria. ¿En qué servicio estás interesado?',
       };
-      const optionsPrompt = {
-        from: 'bot',
-        text: 'Selecciona una opción:',
-      };
-      setMessages([greeting, optionsPrompt]);
+      setMessages([greeting]);
       setAwaitingOption(true);
     }, 300);
   };
@@ -49,29 +44,38 @@ export default function ChatbotWidget() {
     setTimeout(() => {
       let botReply;
       switch (optionText) {
-        case 'Tasaciones':
+        case 'Compraventa de Inmuebles':
           botReply = {
             from: 'bot',
-            text: 'Realizamos tasaciones profesionales basadas en más de 30 años de experiencia. ¿Querés que te enviemos más info?',
+            text: 'Te ayudamos a comprar o vender inmuebles de manera segura y transparente. ¿Querés que te asesoremos?',
+          };
+          break;
+        case 'Alquileres':
+          botReply = {
+            from: 'bot',
+            text: 'Gestionamos alquileres de forma integral, cuidando tanto al propietario como al inquilino. ¿Querés más info?',
+          };
+          break;
+        case 'Asesoramiento Legal y Financiero':
+          botReply = {
+            from: 'bot',
+            text: 'Contamos con profesionales que te asesoran en lo legal y financiero para tomar las mejores decisiones. ¿Querés hablar con un especialista?',
           };
           break;
         case 'Administración de Propiedades':
           botReply = {
             from: 'bot',
-            text: 'Ofrecemos administración integral de tus inmuebles: alquileres, mantenimiento y cobros. ¿Te gustaría contactarte ahora?',
+            text: 'Ofrecemos administración completa de propiedades: cobros, mantenimiento y gestión de inquilinos. ¿Querés recibir detalles?',
           };
           break;
-        case 'Comercialización de Alquileres':
+        case 'Tasación':
           botReply = {
             from: 'bot',
-            text: 'Nos encargamos de publicar y gestionar tu alquiler. Filtramos postulantes y garantizamos cobros. ¿Te gustaría hablar con un asesor?',
+            text: 'Realizamos tasaciones precisas basadas en nuestra experiencia y el mercado actual. ¿Querés coordinar una?',
           };
           break;
         default:
-          botReply = {
-            from: 'bot',
-            text: '¡Entendido! Si necesitas más ayuda, podés contactarnos:',
-          };
+          botReply = { from: 'bot', text: '¡Entendido! 😊' };
           break;
       }
 
@@ -96,10 +100,15 @@ export default function ChatbotWidget() {
         }`}
       >
         <div
-          className={`p-2 rounded ${
-            m.from === 'bot' ? 'bg-light text-dark' : 'bg-primary text-white'
+          className={`p-2 rounded position-relative ${
+            m.from === 'bot'
+              ? 'bg-light text-dark bot-bubble'
+              : 'bg-primary text-white'
           }`}
-          style={{ maxWidth: '70%', wordBreak: 'break-word' }}
+          style={{
+            maxWidth: '70%',
+            wordBreak: 'break-word',
+          }}
         >
           {m.text}
         </div>
@@ -120,17 +129,17 @@ export default function ChatbotWidget() {
         {/* Globo de presentación */}
         {showIntroBubble && !isOpen && (
           <div
-            className="bg-light border rounded shadow p-2 mb-2"
+            className="bg-light border rounded shadow p-2 mb-2 bot-bubble"
             style={{
               position: 'absolute',
               bottom: '100%',
               right: '0',
-              width: '220px',
+              width: '230px',
               fontSize: '0.9rem',
             }}
           >
             👋 ¡Hola! Soy <strong>Coni-E</strong>, la asistente virtual de <strong>Conectar Inmobiliaria</strong>.  
-            ¿En qué puedo ayudarte?
+            ¿Querés que te ayude?
           </div>
         )}
 
@@ -157,7 +166,7 @@ export default function ChatbotWidget() {
             bottom: '90px',
             right: '20px',
             width: '300px',
-            height: '400px',
+            height: '420px',
             zIndex: 1040,
           }}
         >
@@ -181,11 +190,17 @@ export default function ChatbotWidget() {
 
             {awaitingOption && (
               <div className="mt-2">
-                {['Tasaciones', 'Administración de Propiedades', 'Comercialización de Alquileres'].map((opt) => (
+                {[
+                  'Compraventa de Inmuebles',
+                  'Alquileres',
+                  'Asesoramiento Legal y Financiero',
+                  'Administración de Propiedades',
+                  'Tasación',
+                ].map((opt) => (
                   <button
                     key={opt}
                     onClick={() => handleOption(opt)}
-                    className="btn btn-outline-primary btn-sm me-2 mb-2"
+                    className="btn btn-outline-primary btn-sm me-2 mb-2 w-100"
                   >
                     {opt}
                   </button>
@@ -212,6 +227,23 @@ export default function ChatbotWidget() {
           </div>
         </div>
       )}
+
+      {/* Estilos inline para el bocadillo de historieta */}
+<style jsx>{`
+        .bot-bubble {
+          position: relative;
+        }
+        .bot-bubble::after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          right: 20px; /* moved to the right side */
+          left: auto;
+          border-width: 8px 8px 0 8px; /* top right bottom left */
+          border-style: solid;
+          border-color: #f8f9fa transparent transparent transparent;
+        }
+      `}</style>
     </>
   );
 }
