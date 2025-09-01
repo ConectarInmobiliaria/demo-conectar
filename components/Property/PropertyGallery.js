@@ -1,75 +1,87 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Keyboard } from 'swiper/modules';
 import { X } from 'lucide-react';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import '@/styles/property-gallery.css';
+
 
 export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
   const [fullscreen, setFullscreen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef(null);
 
   if (!images?.length) return null;
+
+  // --- Cuando hago click en una miniatura, muevo el Swiper principal
+  const goToSlide = (idx) => {
+    setActiveIndex(idx);
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(idx);
+    }
+  };
 
   return (
     <div className="w-full">
       {/* Galería principal */}
-      <div className="w-full bg-white shadow-md border border-gray-200 overflow-hidden">
-        <Swiper
-          modules={[Navigation, Keyboard]}
-          navigation
-          keyboard={{ enabled: true }}
-          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-          className="w-full h-[400px]"
+      <div className="property-gallery">
+  {/* Principal */}
+  <Swiper
+    modules={[Navigation, Keyboard]}
+    navigation
+    keyboard={{ enabled: true }}
+    onSwiper={(swiper) => (swiperRef.current = swiper)}
+    onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+  >
+    {images.map((src, idx) => (
+      <SwiperSlide key={`${galleryId}-main-${idx}`}>
+        <div
+          className="relative w-full h-full cursor-pointer"
+          onClick={() => {
+            goToSlide(idx);
+            setFullscreen(true);
+          }}
         >
-          {images.map((src, idx) => (
-            <SwiperSlide key={`${galleryId}-main-${idx}`}>
-              <div
-                className="relative w-full h-[400px] cursor-pointer"
-                onClick={() => {
-                  setActiveIndex(idx);
-                  setFullscreen(true);
-                }}
-              >
-                <Image
-                  src={src}
-                  alt={`${title} - imagen ${idx + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 960px"
-                  priority={idx === 0}
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <Image
+  src={src}
+  alt={`${title} - imagen ${idx + 1}`}
+  fill
+  sizes="(max-width: 768px) 100vw, 960px"
+  priority={idx === 0}
+  style={{ objectFit: 'contain', backgroundColor: '#000' }}
+/>
 
-        {/* Miniaturas */}
-        {images.length > 1 && (
-          <div className="flex gap-2 p-2 bg-gray-50 border-t border-gray-200 overflow-x-auto">
-            {images.map((src, idx) => (
-              <div
-                key={`${galleryId}-thumb-${idx}`}
-                onClick={() => setActiveIndex(idx)}
-                className={`relative w-24 h-16 cursor-pointer border ${
-                  idx === activeIndex ? 'border-blue-600' : 'border-transparent'
-                }`}
-              >
-                <Image
-                  src={src}
-                  alt={`Miniatura ${idx + 1}`}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      </SwiperSlide>
+    ))}
+  </Swiper>
+
+  {/* Thumbs */}
+  {images.length > 1 && (
+    <div className="property-gallery-thumbs">
+      {images.map((src, idx) => (
+        <div
+          key={`${galleryId}-thumb-${idx}`}
+          className={`thumb ${idx === activeIndex ? 'active' : ''}`}
+          onClick={() => goToSlide(idx)}
+        >
+          <Image
+            src={src}
+            alt={`Miniatura ${idx + 1}`}
+            width={96}
+            height={64}
+          />
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
 
       {/* Fullscreen Modal */}
       {fullscreen && (
