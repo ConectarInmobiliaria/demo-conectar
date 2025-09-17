@@ -33,7 +33,7 @@ export default function PropertyFeatures({ property }) {
       {/* Chips destacados */}
       <div className="d-flex flex-wrap gap-2 mb-4">
         <span className="feature-chip">
-          <FaMoneyBillAlt className="text-primary" /> {currency === 'USD' ? 'US$' : 'AR$'} {price?.toLocaleString()}
+          <FaMoneyBillAlt className="text-primary" /> {currency === 'USD' ? 'U$S' : '$'} {price?.toLocaleString()}
         </span>
         <span className="feature-chip">
           <FaBed className="text-primary" /> {bedrooms ?? 0} dorm.

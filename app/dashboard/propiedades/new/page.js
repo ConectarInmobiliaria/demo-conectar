@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 export default function NewPropertyPage() {
   const { data: session, status } = useSession();
@@ -24,6 +25,7 @@ export default function NewPropertyPage() {
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
   const [images, setImages] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +36,11 @@ export default function NewPropertyPage() {
       .catch(console.error);
   }, []);
 
-  const handleImageChange = e => setImages(Array.from(e.target.files));
+  const handleImageChange = e => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+    setPreviewUrls(files.map(file => URL.createObjectURL(file)));
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -94,6 +100,7 @@ export default function NewPropertyPage() {
           videoUrl: videoUrl || null,
         }),
       });
+
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Error al crear propiedad');
 
@@ -107,181 +114,187 @@ export default function NewPropertyPage() {
   };
 
   return (
-    <div className="container py-5">
-      <h1 className="mb-4">Nueva Propiedad</h1>
-      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-semibold mb-6">Nueva Propiedad</h1>
 
-      <form onSubmit={handleSubmit} className="mb-4">
+      {errorMsg && (
+        <div className="mb-4 p-3 rounded-md bg-red-100 text-red-700 border border-red-200">
+          {errorMsg}
+        </div>
+      )}
 
-        {/* Código de propiedad */}
-        <div className="mb-3">
-          <label className="form-label">Código de Propiedad *</label>
+      <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
+        {/* Código */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Código de Propiedad *</label>
           <input
             type="number"
-            className="form-control"
             value={code}
             onChange={e => setCode(e.target.value)}
             disabled={loading}
-            required
+            className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             placeholder="Ej: 12345"
+            required
           />
-          <small className="text-muted">Solo números, máx. 8 dígitos</small>
+          <p className="text-xs text-gray-500 mt-1">Solo números, máx. 8 dígitos</p>
         </div>
 
         {/* Título */}
-        <div className="mb-3">
-          <label className="form-label">Título *</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Título *</label>
           <input
             type="text"
-            className="form-control"
             value={title}
             onChange={e => setTitle(e.target.value)}
             disabled={loading}
+            className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
         {/* Descripción */}
-        <div className="mb-3">
-          <label className="form-label">Descripción *</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Descripción *</label>
           <textarea
-            className="form-control"
             rows={4}
             value={description}
             onChange={e => setDescription(e.target.value)}
             disabled={loading}
+            className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
-        {/* Precio, Moneda, Ubicación */}
-        <div className="row">
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Precio *</label>
+        {/* Precio + Moneda + Ubicación */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Precio *</label>
             <input
               type="number"
-              className="form-control"
               value={price}
               onChange={e => setPrice(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Moneda *</label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Moneda *</label>
             <select
-              className="form-select"
               value={currency}
               onChange={e => setCurrency(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             >
               <option value="ARS">Pesos (ARS)</option>
               <option value="USD">Dólares (USD)</option>
             </select>
           </div>
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Ubicación *</label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Ubicación *</label>
             <input
               type="text"
-              className="form-control"
               value={location}
               onChange={e => setLocation(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
         </div>
 
-        {/* Ciudad y Dirección */}
-        <div className="row">
-          <div className="col-md-4 mb-3">
-            <label className="form-label">Ciudad *</label>
+        {/* Ciudad + Dirección */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Ciudad *</label>
             <input
               type="text"
-              className="form-control"
               value={city}
               onChange={e => setCity(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-          <div className="col-md-8 mb-3">
-            <label className="form-label">Dirección *</label>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium mb-1">Dirección *</label>
             <input
               type="text"
-              className="form-control"
               value={address}
               onChange={e => setAddress(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
         </div>
 
         {/* Detalles */}
-        <div className="row">
-          <div className="col-md-2 mb-3">
-            <label className="form-label">Dormitorios</label>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Dormitorios</label>
             <input
               type="number"
-              className="form-control"
               value={bedrooms}
               onChange={e => setBedrooms(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="col-md-2 mb-3">
-            <label className="form-label">Baños</label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Baños</label>
             <input
               type="number"
-              className="form-control"
               value={bathrooms}
               onChange={e => setBathrooms(e.target.value)}
               disabled={loading}
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="col-md-2 mb-3 d-flex align-items-center">
-            <label className="form-label me-2">Garage</label>
+          <div className="flex items-center">
             <input
               type="checkbox"
-              className="form-check-input"
               checked={garage}
               onChange={e => setGarage(e.target.checked)}
               disabled={loading}
+              className="mr-2"
             />
+            <label className="text-sm font-medium">Garage</label>
           </div>
-          <div className="col-md-3 mb-3">
-            <label className="form-label">Expensas</label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Expensas</label>
             <input
               type="number"
-              className="form-control"
               value={expenses}
               onChange={e => setExpenses(e.target.value)}
               disabled={loading}
-            />
-          </div>
-          <div className="col-md-3 mb-3">
-            <label className="form-label">Video URL</label>
-            <input
-              type="url"
-              className="form-control"
-              value={videoUrl}
-              onChange={e => setVideoUrl(e.target.value)}
-              disabled={loading}
-              placeholder="https://..."
+              className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
+        {/* Video */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Video URL</label>
+          <input
+            type="url"
+            value={videoUrl}
+            onChange={e => setVideoUrl(e.target.value)}
+            disabled={loading}
+            placeholder="https://..."
+            className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         {/* Categoría */}
-        <div className="mb-3">
-          <label className="form-label">Categoría *</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Categoría *</label>
           <select
-            className="form-select"
             value={categoryId}
             onChange={e => setCategoryId(e.target.value)}
             disabled={loading}
             required
+            className="w-full rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
           >
             <option value="">-- Selecciona categoría --</option>
             {categories.map(cat => (
@@ -291,28 +304,52 @@ export default function NewPropertyPage() {
         </div>
 
         {/* Imágenes */}
-        <div className="mb-3">
-          <label className="form-label">Imágenes</label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Imágenes</label>
           <input
             type="file"
             accept="image/*"
             multiple
-            className="form-control"
             onChange={handleImageChange}
             disabled={loading}
+            className="w-full text-sm"
           />
+          {previewUrls.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+              {previewUrls.map((url, idx) => (
+                <div key={idx} className="relative w-full h-32 border rounded overflow-hidden">
+                  <Image
+                    src={url}
+                    alt={`Preview ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Botones */}
-        <div className="d-flex gap-2">
-          <button type="submit" className="btn btn-success" disabled={loading}>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+          >
+            {loading && (
+              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+            )}
             {loading ? 'Creando...' : 'Guardar'}
           </button>
           <button
             type="button"
-            className="btn btn-outline-secondary"
             onClick={() => router.back()}
             disabled={loading}
+            className="px-4 py-2 border rounded hover:bg-gray-50 disabled:opacity-50"
           >
             Cancelar
           </button>

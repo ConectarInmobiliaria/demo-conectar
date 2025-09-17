@@ -8,8 +8,9 @@ export default function EditPropertyForm({ property }) {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [title, setTitle] = useState(property.title);
-  const [description, setDescription] = useState(property.description);
+  // Estados de campos
+  const [title, setTitle] = useState(property.title || '');
+  const [description, setDescription] = useState(property.description || '');
   const [price, setPrice] = useState(property.price?.toString() || '');
   const [currency, setCurrency] = useState(property.currency || 'ARS');
   const [location, setLocation] = useState(property.location || '');
@@ -22,9 +23,15 @@ export default function EditPropertyForm({ property }) {
   const [expenses, setExpenses] = useState(property.expenses?.toString() || '');
   const [videoUrl, setVideoUrl] = useState(property.videoUrl || '');
   const [categoryId, setCategoryId] = useState(property.categoryId?.toString() || '');
+
+  // Manejo de imágenes
   const [newImages, setNewImages] = useState([]);
   const [currentImages, setCurrentImages] = useState(property.otherImageUrls || []);
+
+  // Categorías
   const [categories, setCategories] = useState([]);
+
+  // Estados de UI
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -78,6 +85,7 @@ export default function EditPropertyForm({ property }) {
           videoUrl: videoUrl || null,
         }),
       });
+
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       router.push('/dashboard/propiedades');
