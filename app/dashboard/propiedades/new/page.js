@@ -1,3 +1,4 @@
+// app/dashboard/propiedades/new/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,7 @@ export default function NewPropertyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  // States
   const [code, setCode] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -29,19 +31,33 @@ export default function NewPropertyPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Cargar categorías
   useEffect(() => {
     fetch('/api/categories')
       .then(res => res.json())
-      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .then(data => {
+        if (Array.isArray(data)) setCategories(data);
+        else setCategories([]);
+      })
       .catch(console.error);
   }, []);
 
+  // Liberar previews antiguos
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
+
+  // Subida imágenes preview
   const handleImageChange = e => {
     const files = Array.from(e.target.files);
     setImages(files);
-    setPreviewUrls(files.map(file => URL.createObjectURL(file)));
+    const newUrls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(newUrls);
   };
 
+  // Submit
   const handleSubmit = async e => {
     e.preventDefault();
     setErrorMsg('');
@@ -50,7 +66,7 @@ export default function NewPropertyPage() {
       setErrorMsg('Debes iniciar sesión para crear una propiedad');
       return;
     }
-    if (!code || !title || !description || !price || !location || !city || !address || !categoryId) {
+    if (!code || !title || !description || !location || !city || !address || !categoryId) {
       setErrorMsg('Completa todos los campos obligatorios');
       return;
     }
@@ -68,6 +84,7 @@ export default function NewPropertyPage() {
 
     setLoading(true);
     try {
+      // Subida imágenes
       let otherImageUrls = [];
       if (images.length) {
         const formData = new FormData();
@@ -78,6 +95,7 @@ export default function NewPropertyPage() {
         otherImageUrls = uploadJson.urls;
       }
 
+      // Crear propiedad
       const res = await fetch('/api/propiedades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
