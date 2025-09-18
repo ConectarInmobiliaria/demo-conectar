@@ -107,7 +107,10 @@ model Property {
   inquiries      Inquiry[]
   category       Category      @relation(fields: [categoryId], references: [id])
   creator        User?         @relation("UserProperties", fields: [creatorId], references: [id])
-
+  width Float?
+  length Float?
+  squareMeters Float?
+  
   @@map("properties")
 }
 
