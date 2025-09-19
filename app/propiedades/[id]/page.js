@@ -10,6 +10,15 @@ import ShareButtons from '@/components/Property/ShareButtons';
 import PropertyMap from '@/components/Property/PropertyMap';
 export const dynamic = 'force-dynamic';
 
+// Helper: formatea número según locale AR (se usa sólo para mostrar precio cuando >0)
+function formatNumberAR(value) {
+  try {
+    return Number(value).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  } catch {
+    return String(value);
+  }
+}
+
 // --- Metadata dinámica para OG/WhatsApp ---
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -29,7 +38,11 @@ export async function generateMetadata({ params }) {
     ...(Array.isArray(prop.otherImageUrls) ? prop.otherImageUrls : []),
   ];
   const ogImage = images[0] || `${siteUrl}/logo.png`;
-  const title = `${prop.title} • ${prop.currency === 'USD' ? 'US$' : 'AR$'} ${Number(prop.price).toLocaleString()}`;
+  // Mostrar "Consultar" en metadata si price <= 0
+  const priceLabel = prop.price && Number(prop.price) > 0
+    ? `${prop.currency === 'USD' ? 'u$d' : '$'} ${formatNumberAR(prop.price)}`
+    : 'Consultar';
+  const title = `${prop.title} • ${priceLabel}`;
   const description = prop.description?.slice(0, 160) || 'Propiedad en Conectar Inmobiliaria';
 
   return {
@@ -70,15 +83,20 @@ export default async function PropertyDetailPage({ params }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
   const pageUrl = `${siteUrl}/propiedades/${prop.id}`;
 
+  // Precio a mostrar: si price <= 0 -> "Consultar"
+  const priceDisplay = (prop.price == null || Number(prop.price) <= 0)
+    ? 'Consultar'
+    : `${prop.currency === 'USD' ? 'u$d' : '$'} ${formatNumberAR(prop.price)}`;
+
   return (
     <div className="container py-5">
       <div className="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-3">
-        <FadeInHeadingClient as="h1" className="h-title m-0">
+        <FadeInHeadingClient as="h1" className="h-title m-0 text-dark">
           {prop.title}
         </FadeInHeadingClient>
         <div className="ms-md-auto">
           <span className="badge rounded-pill text-bg-light fs-6 border">
-            {prop.currency === 'USD' ? 'US$' : 'AR$'} {Number(prop.price).toLocaleString()}
+            {priceDisplay}
           </span>
         </div>
       </div>
@@ -124,9 +142,7 @@ export default async function PropertyDetailPage({ params }) {
               <div className="fw-semibold mb-2">¿Te interesó esta propiedad?</div>
               <Link
                 href={`https://wa.me/5493764728718?text=${encodeURIComponent(
-                  `Hola, estoy interesado en "${prop.title}" (${prop.currency === 'USD' ? 'US$' : 'AR$'} ${Number(
-                    prop.price
-                  ).toLocaleString()}). ${pageUrl}`
+                  `Hola, estoy interesado en "${prop.title}" (${priceDisplay}). ${pageUrl}`
                 )}`}
                 className="btn btn-success w-100"
                 target="_blank"
@@ -139,7 +155,7 @@ export default async function PropertyDetailPage({ params }) {
 
             <ShareButtons
               title={prop.title}
-              price={Number(prop.price)}
+              price={prop.price}
               currency={prop.currency}
               url={pageUrl}
             />

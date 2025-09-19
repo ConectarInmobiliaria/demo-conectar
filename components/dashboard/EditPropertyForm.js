@@ -1,8 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useDropzone } from 'react-dropzone';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 export default function EditPropertyForm({ property }) {
   const { data: session, status } = useSession();
@@ -28,6 +30,7 @@ export default function EditPropertyForm({ property }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Traer categorías
   useEffect(() => {
     fetch('/api/categories')
       .then(r => r.json())
@@ -35,7 +38,28 @@ export default function EditPropertyForm({ property }) {
       .catch(console.error);
   }, []);
 
-  const handleImageChange = e => setNewImages(Array.from(e.target.files));
+  // Dropzone para nuevas imágenes
+  const onDrop = useCallback(acceptedFiles => {
+    setNewImages(prev => [...prev, ...acceptedFiles]);
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*' });
+
+  // Reordenar imágenes actuales
+  const onDragEnd = result => {
+    if (!result.destination) return;
+    const reordered = Array.from(currentImages);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setCurrentImages(reordered);
+  };
+
+  const removeImage = index => {
+    setCurrentImages(imgs => imgs.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = index => {
+    setNewImages(imgs => imgs.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -56,6 +80,8 @@ export default function EditPropertyForm({ property }) {
         uploaded = upJson.urls;
       }
 
+      const finalImages = [...currentImages, ...uploaded];
+
       const res = await fetch(`/api/propiedades/${property.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -69,8 +95,8 @@ export default function EditPropertyForm({ property }) {
           address,
           code,
           categoryId: parseInt(categoryId, 10),
-          imageUrl: [...currentImages, ...uploaded][0] || null,
-          otherImageUrls: [...currentImages, ...uploaded],
+          imageUrl: finalImages[0] || null,
+          otherImageUrls: finalImages,
           bedrooms: bedrooms ? parseInt(bedrooms, 10) : null,
           bathrooms: bathrooms ? parseInt(bathrooms, 10) : null,
           garage,
@@ -261,36 +287,83 @@ export default function EditPropertyForm({ property }) {
         </div>
 
         {/* Imágenes */}
-        <div className="mb-3">
-          <label className="form-label">Imágenes actuales</label>
-          <div className="d-flex flex-wrap gap-2">
-            {currentImages.map((img, i) => (
+          <h5 className="mt-4 mb-3">Imágenes actuales</h5>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="images" direction="horizontal">
+            {provided => (
+              <div
+                className="d-flex flex-wrap gap-2"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {currentImages.map((img, i) => (
+                  <Draggable key={img} draggableId={img} index={i}>
+                    {provided => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="position-relative"
+                      >
+                        <Image
+                          src={img}
+                          alt={`Imagen ${i}`}
+                          width={140}
+                          height={100}
+                          className="border"
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                          onClick={() => removeImage(i)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+
+        {/* Nuevas imágenes con dropzone */}
+        <h5 className="mt-4 mb-3">Agregar nuevas imágenes</h5>
+        <div
+          {...getRootProps()}
+          className={`border p-4 text-center ${isDragActive ? 'bg-light' : ''}`}
+          style={{ cursor: 'pointer' }}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? 'Suelta las imágenes aquí...' : 'Arrastra imágenes o haz clic para seleccionar'}
+        </div>
+        {newImages.length > 0 && (
+          <div className="d-flex flex-wrap gap-2 mt-3">
+            {newImages.map((file, i) => (
               <div key={i} className="position-relative">
                 <Image
-                  src={img}
-                  alt={`Imagen ${i}`}
-                  width={120}
-                  height={90}
-                  className="rounded border"
+                  src={URL.createObjectURL(file)}
+                  alt={`Nueva ${i}`}
+                  width={140}
+                  height={100}
+                  className="border"
                 />
+                <button
+                  type="button"
+                  className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                  onClick={() => removeNewImage(i)}
+                >
+                  ✕
+                </button>
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="form-label">Agregar nuevas imágenes</label>
-          <input
-            type="file"
-            className="form-control"
-            multiple
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-        </div>
+        )}
 
         {/* Botones */}
-        <div className="d-flex justify-content-between">
+        <div className="d-flex justify-content-between mt-4">
           <button
             type="button"
             className="btn btn-outline-secondary"
