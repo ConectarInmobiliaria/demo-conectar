@@ -16,52 +16,68 @@ const supabase = getSupabaseAdmin();
 const BUCKET = process.env.SUPABASE_BUCKET_NAME;
 const BUCKET_URL = process.env.SUPABASE_BUCKET_URL;
 
-// Cargamos una sola vez el buffer de la marca de agua
+// Marca de agua
 const watermarkPath = path.join(process.cwd(), 'public', 'marca.png');
-const watermarkBuffer = fs.readFileSync(watermarkPath);
+let watermarkBuffer = null;
+try {
+  watermarkBuffer = fs.readFileSync(watermarkPath);
+} catch (err) {
+  console.warn('⚠ No se encontró marca.png en /public, se subirá sin watermark.');
+}
 
 export async function POST(request) {
   try {
     const form = await request.formData();
     const files = form.getAll('images');
-    if (!files.length) {
+    if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No se enviaron archivos' }, { status: 400 });
     }
 
     const uploadedUrls = [];
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB por archivo
 
     for (const file of files) {
-      // 1️⃣ Leemos el buffer original
+      // Validar tamaño
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json(
+          { error: `El archivo ${file.name} excede el límite de 10MB` },
+          { status: 413 }
+        );
+      }
+
+      // 1️⃣ Buffer original
       const inputBuffer = Buffer.from(await file.arrayBuffer());
 
-      // 2️⃣ Procesamos con Sharp: compositing + webp
-      const processedBuffer = await sharp(inputBuffer)
-        .composite([{ input: watermarkBuffer, gravity: 'southeast' }])
-        .webp({ quality: 80 })
-        .toBuffer();
+      // 2️⃣ Procesamos con Sharp
+      let sharpInstance = sharp(inputBuffer);
+      if (watermarkBuffer) {
+        sharpInstance = sharpInstance.composite([{ input: watermarkBuffer, gravity: 'southeast' }]);
+      }
+      const processedBuffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
 
-      // 3️⃣ Construimos la clave en el bucket
-      const folder = new Date().toISOString().slice(0, 10);
+      // 3️⃣ Construimos la ruta en el bucket
+      const folder = new Date().toISOString().slice(0, 10); // ej: 2025-09-19
       const key = `${folder}/${uuidv4()}.webp`;
 
-      // 4️⃣ Subimos al bucket usando el service role client
-      const { data, error } = await supabase
-        .storage
+      // 4️⃣ Subimos al bucket
+      const { data, error } = await supabase.storage
         .from(BUCKET)
         .upload(key, processedBuffer, {
           contentType: 'image/webp',
-          upsert: false
+          upsert: false,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase upload error:', error);
+        throw new Error(error.message || 'Error subiendo a Supabase');
+      }
 
       uploadedUrls.push(`${BUCKET_URL}/${data.path}`);
     }
 
     return NextResponse.json({ urls: uploadedUrls }, { status: 201 });
-
   } catch (e) {
-    console.error('Error subiendo imágenes:', e);
+    console.error('❌ Error subiendo imágenes:', e);
     return NextResponse.json(
       { error: e.message || 'Error subiendo imágenes' },
       { status: 500 }
