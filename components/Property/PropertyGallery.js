@@ -9,16 +9,37 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import '@/styles/property-gallery.css';
 
-
 export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
   const [fullscreen, setFullscreen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
 
+  // Manejar tecla Escape (siempre llamar el hook)
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setFullscreen(false);
+    };
+
+    if (fullscreen) {
+      window.addEventListener('keydown', handleEsc);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [fullscreen]);
+
+  // Bloquear scroll del body (siempre llamar el hook)
+  useEffect(() => {
+    document.body.style.overflow = fullscreen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [fullscreen]);
+
   if (!images?.length) return null;
 
-  // --- Cuando hago click en una miniatura, muevo el Swiper principal
   const goToSlide = (idx) => {
     setActiveIndex(idx);
     if (swiperRef.current) {
@@ -30,65 +51,71 @@ export default function PropertyGallery({ images = [], title = '' }) {
     <div className="w-full">
       {/* Galería principal */}
       <div className="property-gallery">
-  {/* Principal */}
-  <Swiper
-    modules={[Navigation, Keyboard]}
-    navigation
-    keyboard={{ enabled: true }}
-    onSwiper={(swiper) => (swiperRef.current = swiper)}
-    onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-  >
-    {images.map((src, idx) => (
-      <SwiperSlide key={`${galleryId}-main-${idx}`}>
-        <div
-          className="relative w-full h-full cursor-pointer"
-          onClick={() => {
-            goToSlide(idx);
-            setFullscreen(true);
-          }}
+        <Swiper
+          modules={[Navigation, Keyboard]}
+          navigation
+          keyboard={{ enabled: true }}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
-          <Image
-  src={src}
-  alt={`${title} - imagen ${idx + 1}`}
-  fill
-  sizes="(max-width: 768px) 100vw, 960px"
-  priority={idx === 0}
-  style={{ objectFit: 'contain', backgroundColor: '#000' }}
-/>
+          {images.map((src, idx) => (
+            <SwiperSlide key={`${galleryId}-main-${idx}`}>
+              <div
+                className="relative w-full h-full cursor-pointer"
+                onClick={() => {
+                  goToSlide(idx);
+                  setFullscreen(true);
+                }}
+              >
+                <Image
+                  src={src}
+                  alt={`${title} - imagen ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 960px"
+                  priority={idx === 0}
+                  style={{ objectFit: 'contain', backgroundColor: '#000' }}
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-        </div>
-      </SwiperSlide>
-    ))}
-  </Swiper>
+        {/* Thumbs */}
+        {images.length > 1 && (
+          <div className="property-gallery-thumbs">
+            {images.map((src, idx) => (
+              <div
+                key={`${galleryId}-thumb-${idx}`}
+                className={`thumb ${idx === activeIndex ? 'active' : ''}`}
+                onClick={() => goToSlide(idx)}
+              >
+                <Image
+                  src={src}
+                  alt={`Miniatura ${idx + 1}`}
+                  width={96}
+                  height={64}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-  {/* Thumbs */}
-  {images.length > 1 && (
-    <div className="property-gallery-thumbs">
-      {images.map((src, idx) => (
-        <div
-          key={`${galleryId}-thumb-${idx}`}
-          className={`thumb ${idx === activeIndex ? 'active' : ''}`}
-          onClick={() => goToSlide(idx)}
-        >
-          <Image
-            src={src}
-            alt={`Miniatura ${idx + 1}`}
-            width={96}
-            height={64}
-          />
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-
-      {/* Fullscreen Modal */}
+      {/* Fullscreen Overlay */}
       {fullscreen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col">
+        <div
+          className="fullscreen-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setFullscreen(false)}
+        >
           <button
-            onClick={() => setFullscreen(false)}
-            className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full z-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFullscreen(false);
+            }}
+            className="close-btn"
+            aria-label="Cerrar galería"
           >
             <X className="w-6 h-6" />
           </button>
