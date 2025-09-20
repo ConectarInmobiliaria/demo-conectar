@@ -1,4 +1,3 @@
-// app/api/upload-images/route.js
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
