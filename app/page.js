@@ -1,17 +1,16 @@
 // app/page.js
-'use client';
+import Hero from '@/components/Hero';
+import Categories from '@/components/Categories';
+import FeaturedProperties from '@/components/FeaturedProperties';
+import Contact from '@/components/Contact';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600">
-          Esta cuenta debe su pago
-        </h1>
-        <p className="mt-4 text-gray-700">
-          Contacte con el administrador para regularizar la situación.
-        </p>
-      </div>
+    <main>
+      <Hero />
+      <Categories />
+      <FeaturedProperties />
+      <Contact />
     </main>
   );
 }
