@@ -15,15 +15,6 @@ const supabase = getSupabaseAdmin();
 const BUCKET = process.env.SUPABASE_BUCKET_NAME;
 const BUCKET_URL = process.env.SUPABASE_BUCKET_URL;
 
-// Marca de agua
-const watermarkPath = path.join(process.cwd(), 'public', 'marca.png');
-let watermarkBuffer = null;
-try {
-  watermarkBuffer = fs.readFileSync(watermarkPath);
-} catch (err) {
-  console.warn('⚠ No se encontró marca.png en /public, se subirá sin watermark.');
-}
-
 export async function POST(request) {
   try {
     const form = await request.formData();
@@ -49,9 +40,6 @@ export async function POST(request) {
 
       // 2️⃣ Procesamos con Sharp
       let sharpInstance = sharp(inputBuffer);
-      if (watermarkBuffer) {
-        sharpInstance = sharpInstance.composite([{ input: watermarkBuffer, gravity: 'southeast' }]);
-      }
       const processedBuffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
 
       // 3️⃣ Construimos la ruta en el bucket
