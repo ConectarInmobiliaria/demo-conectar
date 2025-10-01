@@ -1,3 +1,4 @@
+// components/Property/PropertyFeatures.js
 import {
   FaBath,
   FaBed,
@@ -30,16 +31,31 @@ export default function PropertyFeatures({ property }) {
   // Precio: si <= 0 -> "Consultar"
   const hasPrice = price != null && Number(price) > 0;
   const formattedPrice = hasPrice
-    ? `${currency === 'USD' ? 'u$d' : '$'} ${Number(price).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+    ? `${currency === 'USD' ? 'u$d' : '$'} ${Number(price).toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })}`
     : 'Consultar';
 
-  // Helpers para mostrar filas solo cuando corresponda
+  // Expensas (siempre en la moneda definida)
+  const hasExpenses = expenses != null && Number(expenses) > 0;
+  const formattedExpenses = hasExpenses
+    ? `${currency === 'USD' ? 'u$d' : '$'} ${Number(expenses).toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+      })}`
+    : null;
+
+  // Helpers para mostrar filas
   const showBedrooms = bedrooms != null && Number(bedrooms) > 0;
   const showBathrooms = bathrooms != null && Number(bathrooms) > 0;
-  const showGarage = garage === true || garage === 'true' || garage === 1;
-  const showExpenses = expenses != null && Number(expenses) > 0;
-  const showLocation = (location && String(location).trim() !== '') || (city && city.trim() !== '') || (address && address.trim() !== '');
-  const showDimensions = (squareMeters != null && Number(squareMeters) > 0) || (width != null && length != null);
+  const showGarage = garage !== null && garage !== undefined;
+  const showLocation =
+    (location && String(location).trim() !== '') ||
+    (city && city.trim() !== '') ||
+    (address && address.trim() !== '');
+  const showDimensions =
+    (squareMeters != null && Number(squareMeters) > 0) ||
+    (width != null && length != null);
 
   return (
     <div className="card p-4 shadow-sm mb-4">
@@ -53,7 +69,7 @@ export default function PropertyFeatures({ property }) {
       )}
 
       <div className="row gy-3">
-        {/* Precio: siempre mostrar (puede decir Consultar) */}
+        {/* Precio */}
         <div className="col-md-6 d-flex align-items-center">
           <FaMoneyBillAlt className="me-2 text-success" />
           <strong className="me-1">Precio:</strong>
@@ -71,7 +87,7 @@ export default function PropertyFeatures({ property }) {
           </div>
         )}
 
-        {/* Dimensiones / metros cuadrados */}
+        {/* Superficie */}
         {showDimensions && (
           <div className="col-md-6 d-flex align-items-center">
             <FaRulerCombined className="me-2 text-primary" />
@@ -79,9 +95,9 @@ export default function PropertyFeatures({ property }) {
             <span>
               {squareMeters && Number(squareMeters) > 0
                 ? `${Number(squareMeters)} m²`
-                : (width && length
-                    ? `${Number(width)} m × ${Number(length)} m ≈ ${ (Number(width) * Number(length)).toFixed(2) } m²`
-                    : '-')}
+                : width && length
+                ? `${Number(width)} m × ${Number(length)} m ≈ ${(Number(width) * Number(length)).toFixed(2)} m²`
+                : '-'}
             </span>
           </div>
         )}
@@ -117,16 +133,16 @@ export default function PropertyFeatures({ property }) {
           <div className="col-md-6 d-flex align-items-center">
             <FaCar className="me-2 text-secondary" />
             <strong className="me-1">Garage:</strong>
-            <span>Sí</span>
+            <span>{garage ? 'Sí' : 'No'}</span>
           </div>
         )}
 
         {/* Expensas */}
-        {showExpenses && (
+        {formattedExpenses && (
           <div className="col-md-6 d-flex align-items-center">
             <FaMoneyBillAlt className="me-2 text-muted" />
             <strong className="me-1">Expensas:</strong>
-            <span>AR$ {Number(expenses).toLocaleString('es-AR', { minimumFractionDigits: 0 })}</span>
+            <span>{formattedExpenses}</span>
           </div>
         )}
 
@@ -135,7 +151,12 @@ export default function PropertyFeatures({ property }) {
           <div className="col-md-6 d-flex align-items-center">
             <FaVideo className="me-2 text-danger" />
             <strong className="me-1">Video:</strong>
-            <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-decoration-underline">
+            <a
+              href={videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-decoration-underline"
+            >
               Ver video
             </a>
           </div>

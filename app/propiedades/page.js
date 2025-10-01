@@ -56,8 +56,8 @@ export default function PropiedadesPage() {
         // propiedades
         const propsRes = await fetch('/api/propiedades');
         const propsJson = await propsRes.json();
-        const list = list.filter((p) => p.published);
-
+        let list = Array.isArray(propsJson) ? propsJson : [];
+        list = list.filter((p) => p.published);
         // añadir priceRaw (numérico) y normalizar campos
         const normalized = list.map((p) => ({
           ...p,
