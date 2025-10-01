@@ -1,19 +1,57 @@
 // app/dashboard/propiedades/page.js
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export default function DashboardPropiedadesPage() {
+  const [props, setProps] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function DashboardPropiedadesPage({ searchParams }) {
-  let props = [];
-  try {
-    props = await prisma.property.findMany({
-      include: { category: true, creator: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch (e) {
-    console.error('Error trayendo propiedades en DashboardPropiedadesPage:', e);
-  }
+  // Traer propiedades
+  useEffect(() => {
+    const fetchProps = async () => {
+      try {
+        const res = await fetch('/api/propiedades');
+        const data = await res.json();
+        setProps(data || []);
+      } catch (e) {
+        console.error('Error trayendo propiedades:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProps();
+  }, []);
+
+  // Alternar publicado
+  const handleTogglePublished = async (id, current) => {
+    try {
+      const res = await fetch(`/api/propiedades/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: !current }),
+      });
+      if (!res.ok) throw new Error('Error al actualizar');
+      setProps(prev =>
+        prev.map(p => (p.id === id ? { ...p, published: !current } : p))
+      );
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Eliminar
+  const handleDelete = async (id, title) => {
+    if (!confirm(`¿Eliminar propiedad "${title}"?`)) return;
+    try {
+      const res = await fetch(`/api/propiedades/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
+      setProps(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="container py-5">
@@ -49,8 +87,14 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
             </tr>
           </thead>
           <tbody>
-            {props.length > 0 ? (
-              props.map((prop) => (
+            {loading ? (
+              <tr>
+                <td colSpan="8" className="text-center py-4 text-muted">
+                  Cargando...
+                </td>
+              </tr>
+            ) : props.length > 0 ? (
+              props.map(prop => (
                 <tr key={prop.id}>
                   <td>
                     <span className="badge bg-secondary">{prop.code || prop.id}</span>
@@ -58,22 +102,21 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
                   <td className="fw-semibold">{prop.title}</td>
                   <td>{prop.category?.name || '—'}</td>
                   <td>
-                    {prop.currency === 'USD' ? 'US$' : 'AR$'}{' '}
-                    {prop.price.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+                    {prop.price === 0
+                      ? 'Consultar'
+                      : `${prop.currency === 'USD' ? 'US$' : 'AR$'} ${prop.price.toLocaleString()}`}
                   </td>
                   <td>{prop.city ? `${prop.city}, ${prop.location}` : prop.location}</td>
                   <td>
                     {prop.creator
-                      ? [prop.creator.firstName, prop.creator.lastName]
-                          .filter(Boolean)
-                          .join(' ')
+                      ? [prop.creator.firstName, prop.creator.lastName].filter(Boolean).join(' ')
                       : '—'}
                   </td>
                   <td>
                     <span
-                      className={`badge ${
-                        prop.published ? 'bg-success' : 'bg-danger'
-                      }`}
+                      className={`badge ${prop.published ? 'bg-success' : 'bg-danger'}`}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleTogglePublished(prop.id, prop.published)}
                     >
                       {prop.published ? 'Publicado' : 'Borrador'}
                     </span>
@@ -94,13 +137,13 @@ export default async function DashboardPropiedadesPage({ searchParams }) {
                       >
                         ✏️
                       </Link>
-                      <Link
-                        href={`/dashboard/propiedades/${prop.id}/delete`}
+                      <button
+                        onClick={() => handleDelete(prop.id, prop.title)}
                         className="btn btn-outline-danger"
                         title="Eliminar"
                       >
                         🗑
-                      </Link>
+                      </button>
                     </div>
                   </td>
                 </tr>

@@ -52,6 +52,7 @@ export async function GET() {
       width: r.width,
       length: r.length,
       squareMeters: r.squareMeters,
+      published: r.published, // 👈 agregado
     }))
 
     return NextResponse.json(data)
@@ -73,11 +74,10 @@ export async function POST(request) {
   let body
   try {
     body = await request.json()
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
   }
 
-  // Desestructuramos y saneamos
   const {
     title: rawTitle,
     description: rawDescription,
@@ -97,6 +97,7 @@ export async function POST(request) {
     width: rawWidth,
     length: rawLength,
     squareMeters: rawSquareMeters,
+    published = true, // 👈 recibido desde frontend
   } = body
 
   const title = rawTitle ? String(rawTitle).trim() : ''
@@ -106,23 +107,15 @@ export async function POST(request) {
   const address = rawAddress ? String(rawAddress).trim() : ''
   const categoryId = rawCategoryId != null ? Number(rawCategoryId) : NaN
 
-  // 🔹 Validaciones mínimas (city y address ya no son obligatorios)
   if (!title || !description || rawPrice == null || !location || !categoryId) {
     return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 })
   }
 
-  // Validar categoría existe
-  try {
-    const cat = await prisma.category.findUnique({ where: { id: Number(categoryId) } })
-    if (!cat) {
-      return NextResponse.json({ error: 'Categoría inválida' }, { status: 400 })
-    }
-  } catch (e) {
-    console.error('Error validando categoría:', e)
-    return NextResponse.json({ error: 'Error validando categoría' }, { status: 500 })
+  const cat = await prisma.category.findUnique({ where: { id: Number(categoryId) } })
+  if (!cat) {
+    return NextResponse.json({ error: 'Categoría inválida' }, { status: 400 })
   }
 
-  // Parseo de precio tolerante a "1.234,56" y "1234.56"
   const price = parseFloat(String(rawPrice).replace(/\./g, '').replace(/,/g, '.'))
   if (isNaN(price)) {
     return NextResponse.json({ error: 'Precio inválido' }, { status: 400 })
@@ -132,45 +125,32 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Moneda inválida' }, { status: 400 })
   }
 
-  // Asegurar otherImageUrls es array de strings
   const otherImageUrlsClean = Array.isArray(otherImageUrls)
     ? otherImageUrls.filter(Boolean).map(x => String(x))
     : []
 
-  // Parseos seguros de campos opcionales
-  const bedrooms = rawBedrooms != null ? (Number.isInteger(rawBedrooms) ? rawBedrooms : parseInt(String(rawBedrooms), 10)) : null
-  const bathrooms = rawBathrooms != null ? (Number.isInteger(rawBathrooms) ? rawBathrooms : parseInt(String(rawBathrooms), 10)) : null
-
-  // garage puede venir como booleano o string "true"/"false"
   let garageVal = null
   if (rawGarage !== undefined && rawGarage !== null) {
     if (typeof rawGarage === 'boolean') garageVal = rawGarage
-    else {
-      const s = String(rawGarage).toLowerCase().trim()
-      garageVal = s === 'true' || s === '1'
-    }
+    else garageVal = ['true', '1'].includes(String(rawGarage).toLowerCase())
   }
 
-  const expenses = rawExpenses != null ? parseFloat(String(rawExpenses).replace(/\./g, '').replace(/,/g, '.')) : null
+  const expenses = rawExpenses != null
+    ? parseFloat(String(rawExpenses).replace(/\./g, '').replace(/,/g, '.'))
+    : null
 
-  // Nuevos campos geométricos
   const width = rawWidth != null ? parseFloat(String(rawWidth).replace(',', '.')) : null
   const length = rawLength != null ? parseFloat(String(rawLength).replace(',', '.')) : null
   const squareMeters = rawSquareMeters != null ? parseFloat(String(rawSquareMeters).replace(',', '.')) : null
 
-  // Generación del código (evitar loop infinito: límite de intentos)
+  // Generación código
   let code = null
-  const MAX_ATTEMPTS = 10
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  for (let i = 0; i < 10; i++) {
     const candidate = letters() + numbers()
-    // comprobamos única
     const existing = await prisma.property.findUnique({ where: { code: candidate } })
     if (!existing) { code = candidate; break }
   }
-  if (!code) {
-    // fallback si la generación choca muchas veces (extremadamente improbable)
-    code = `P${Date.now().toString().slice(-6)}`
-  }
+  if (!code) code = `P${Date.now().toString().slice(-6)}`
 
   try {
     const created = await prisma.property.create({
@@ -184,10 +164,10 @@ export async function POST(request) {
         address: address || null,
         categoryId: Number(categoryId),
         creatorId: session.user.id,
-        imageUrl: imageUrl || null,
+        imageUrl,
         otherImageUrls: otherImageUrlsClean,
-        bedrooms: Number.isNaN(bedrooms) ? null : bedrooms,
-        bathrooms: Number.isNaN(bathrooms) ? null : bathrooms,
+        bedrooms: bedrooms ? parseInt(bedrooms, 10) : null,
+        bathrooms: bathrooms ? parseInt(bathrooms, 10) : null,
         garage: garageVal,
         expenses: !isNaN(expenses) ? expenses : null,
         videoUrl: rawVideoUrl || null,
@@ -195,6 +175,7 @@ export async function POST(request) {
         width: !isNaN(width) ? width : null,
         length: !isNaN(length) ? length : null,
         squareMeters: !isNaN(squareMeters) ? squareMeters : null,
+        published, // 👈 guardamos
       },
       include: {
         category: true,
@@ -202,15 +183,12 @@ export async function POST(request) {
       },
     })
 
-    // Serializar fechas y formatear price (compatibilidad con frontend existente)
-    const resp = {
+    return NextResponse.json({
       ...created,
       price: formatPrice(created.price),
-      createdAt: created.createdAt ? created.createdAt.toISOString() : null,
-      updatedAt: created.updatedAt ? created.updatedAt.toISOString() : null,
-    }
-
-    return NextResponse.json(resp, { status: 201 })
+      createdAt: created.createdAt.toISOString(),
+      updatedAt: created.updatedAt.toISOString(),
+    }, { status: 201 })
   } catch (e) {
     console.error('Error creando propiedad:', e)
     return NextResponse.json({ error: 'Error al crear propiedad' }, { status: 500 })

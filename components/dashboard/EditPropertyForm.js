@@ -1,3 +1,4 @@
+// components/dashboard/EditPropertyForm.js
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
@@ -26,6 +27,7 @@ export default function EditPropertyForm({ property }) {
   const [categoryId, setCategoryId] = useState(property.categoryId?.toString() || '');
   const [newImages, setNewImages] = useState([]);
   const [currentImages, setCurrentImages] = useState(property.otherImageUrls || []);
+  const [published, setPublished] = useState(property.published ?? true); // 👈 estado
   const [categories, setCategories] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,13 +40,13 @@ export default function EditPropertyForm({ property }) {
       .catch(console.error);
   }, []);
 
-  // Dropzone para nuevas imágenes
+  // Dropzone
   const onDrop = useCallback(acceptedFiles => {
     setNewImages(prev => [...prev, ...acceptedFiles]);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*' });
 
-  // Reordenar imágenes actuales
+  // Reordenar imágenes
   const onDragEnd = result => {
     if (!result.destination) return;
     const reordered = Array.from(currentImages);
@@ -53,13 +55,8 @@ export default function EditPropertyForm({ property }) {
     setCurrentImages(reordered);
   };
 
-  const removeImage = index => {
-    setCurrentImages(imgs => imgs.filter((_, i) => i !== index));
-  };
-
-  const removeNewImage = index => {
-    setNewImages(imgs => imgs.filter((_, i) => i !== index));
-  };
+  const removeImage = index => setCurrentImages(imgs => imgs.filter((_, i) => i !== index));
+  const removeNewImage = index => setNewImages(imgs => imgs.filter((_, i) => i !== index));
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -102,6 +99,7 @@ export default function EditPropertyForm({ property }) {
           garage,
           expenses: expenses ? parseFloat(expenses) : null,
           videoUrl: videoUrl || null,
+          published, // 👈 enviar estado
         }),
       });
       const json = await res.json();
@@ -133,7 +131,6 @@ export default function EditPropertyForm({ property }) {
             required
           />
         </div>
-
         <div className="mb-3">
           <label className="form-label">Descripción *</label>
           <textarea
@@ -145,6 +142,20 @@ export default function EditPropertyForm({ property }) {
           />
         </div>
 
+        {/* Publicar */}
+        <div className="form-check form-switch mb-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="publishedSwitch"
+            checked={published}
+            onChange={e => setPublished(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="publishedSwitch">
+            {published ? 'Propiedad publicada' : 'Propiedad oculta'}
+          </label>
+        </div>
+        
         {/* Precio */}
         <h5 className="mt-4 mb-3">Precio</h5>
         <div className="row g-2">

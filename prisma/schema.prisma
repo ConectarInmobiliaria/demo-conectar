@@ -110,6 +110,7 @@ model Property {
   width Float?
   length Float?
   squareMeters Float?
+  published Boolean @default(true)
   
   @@map("properties")
 }
