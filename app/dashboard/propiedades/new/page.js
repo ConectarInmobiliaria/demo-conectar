@@ -136,7 +136,18 @@ export default function NewPropertyPage() {
     });
   };
 
-  const handleSubmit = async e => {
+  // Helper: parsea respuesta intentando JSON, si no cae a texto
+  const safeParseResponse = async (res) => {
+    try {
+      const json = await res.json();
+      return { ok: res.ok, json, text: null };
+    } catch (err) {
+      const text = await res.text().catch(() => null);
+      return { ok: res.ok, json: null, text };
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -157,17 +168,35 @@ export default function NewPropertyPage() {
       if (images.length) {
         const formData = new FormData();
         images.forEach(img => formData.append('images', img.file));
+
         const uploadRes = await fetch('/api/upload-images', { method: 'POST', body: formData });
-        const uploadJson = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadJson.error || 'Error subiendo imágenes');
-        uploadedUrls = Array.isArray(uploadJson.urls) ? uploadJson.urls : [];
+
+        // parseo tolerante
+        const { ok: uploadOk, json: uploadJson, text: uploadText } = await safeParseResponse(uploadRes);
+
+        if (!uploadOk) {
+          // preferimos mensaje estructurado si existe, sino texto plano, sino genérico
+          const errMsg =
+            (uploadJson && uploadJson.error) ||
+            (typeof uploadText === 'string' && uploadText) ||
+            `Error subiendo imágenes (status ${uploadRes.status})`;
+          throw new Error(errMsg);
+        }
+
+        // si llegó JSON, tomamos urls, si no, fallamos
+        if (uploadJson && Array.isArray(uploadJson.urls)) {
+          uploadedUrls = uploadJson.urls;
+        } else {
+          // respuesta ok pero sin formato esperado
+          throw new Error('Respuesta inválida del servicio de subida de imágenes');
+        }
       }
 
       // Enviamos medidas (width, length, squareMeters) por si el backend las acepta
       const body = {
         title,
         description,
-        price: parseFloat(price),
+        price: parseFloat(String(price).replace(/\./g, '').replace(/,/g, '.')),
         currency,
         location,
         city,
@@ -179,7 +208,7 @@ export default function NewPropertyPage() {
         bedrooms: bedrooms ? parseInt(bedrooms, 10) : null,
         bathrooms: bathrooms ? parseInt(bathrooms, 10) : null,
         garage: !!garage,
-        expenses: expenses ? parseFloat(expenses) : null,
+        expenses: expenses ? parseFloat(String(expenses).replace(/\./g, '').replace(/,/g, '.')) : null,
         videoUrl: videoUrl || null,
         width: width ? parseFloat(String(width).replace(',', '.')) : null,
         length: length ? parseFloat(String(length).replace(',', '.')) : null,
@@ -192,21 +221,26 @@ export default function NewPropertyPage() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error || 'Error al crear propiedad');
+      const { ok: propOk, json: propJson, text: propText } = await safeParseResponse(res);
+
+      if (!propOk) {
+        const errMsg =
+          (propJson && propJson.error) ||
+          (typeof propText === 'string' && propText) ||
+          `Error al crear propiedad (status ${res.status})`;
+        throw new Error(errMsg);
       }
 
-      // éxito
+      // éxito: propJson debería tener datos de la propiedad creada
       router.push('/dashboard/propiedades');
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message || 'Error inesperado');
+      setErrorMsg(err?.message || 'Error inesperado');
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="container py-4">
       <h1 className="mb-4">Nueva Propiedad</h1>
