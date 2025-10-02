@@ -154,35 +154,34 @@ export async function POST(request) {
 
   try {
     const created = await prisma.property.create({
-      data: {
-        title,
-        description,
-        price,
-        currency,
-        location,
-        city: city || null,
-        address: address || null,
-        categoryId: Number(categoryId),
-        creatorId: session.user.id,
-        imageUrl,
-        otherImageUrls: otherImageUrlsClean,
-        bedrooms: bedrooms ? parseInt(bedrooms, 10) : null,
-        bathrooms: bathrooms ? parseInt(bathrooms, 10) : null,
-        garage: garageVal,
-        expenses: !isNaN(expenses) ? expenses : null,
-        videoUrl: rawVideoUrl || null,
-        code,
-        width: !isNaN(width) ? width : null,
-        length: !isNaN(length) ? length : null,
-        squareMeters: !isNaN(squareMeters) ? squareMeters : null,
-        published, // 👈 guardamos
-      },
-      include: {
-        category: true,
-        creator: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-    })
-
+  data: {
+    title,
+    description,
+    price,
+    currency,
+    location,
+    city: city || null,
+    address: address || null,
+    categoryId: Number(categoryId),
+    creatorId: session.user.id,
+    imageUrl,
+    otherImageUrls: otherImageUrlsClean,
+    bedrooms: rawBedrooms ? parseInt(rawBedrooms, 10) : null,
+    bathrooms: rawBathrooms ? parseInt(rawBathrooms, 10) : null,
+    garage: garageVal,
+    expenses: !isNaN(expenses) ? expenses : null,
+    videoUrl: rawVideoUrl || null,
+    code,
+    width: !isNaN(width) ? width : null,
+    length: !isNaN(length) ? length : null,
+    squareMeters: !isNaN(squareMeters) ? squareMeters : null,
+    published, // 👈 guardamos
+  },
+  include: {
+    category: true,
+    creator: { select: { id: true, firstName: true, lastName: true, email: true } },
+  },
+})
     return NextResponse.json({
       ...created,
       price: formatPrice(created.price),
