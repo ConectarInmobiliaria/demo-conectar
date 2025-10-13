@@ -5,14 +5,20 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 
 function formatPrice(value) {
+  if (typeof value !== 'number') return value
   return value.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
 }
 
-export async function GET(request, { params }) {
-  const id = params.id
+// 🔹 GET -> obtener propiedad por id
+export async function GET(_req, { params }) {
+  const id = Number(params.id)
+  if (isNaN(id)) {
+    return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+  }
+
   try {
     const prop = await prisma.property.findUnique({
       where: { id },
@@ -37,6 +43,7 @@ export async function GET(request, { params }) {
   }
 }
 
+// 🔹 PUT -> actualizar propiedad
 export async function PUT(request, { params }) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -44,7 +51,11 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 })
   }
 
-  const id = params.id
+  const id = Number(params.id)
+  if (isNaN(id)) {
+    return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+  }
+
   const {
     title,
     description,
@@ -61,7 +72,7 @@ export async function PUT(request, { params }) {
     garage,
     expenses,
     videoUrl,
-    published, // 👈 ahora se recibe
+    published,
   } = await request.json()
 
   if (!title || !description || rawPrice == null || !location || !categoryId) {
@@ -81,22 +92,22 @@ export async function PUT(request, { params }) {
     const updated = await prisma.property.update({
       where: { id },
       data: {
-        title,
-        description,
+        title: title.trim(),
+        description: description.trim(),
         price,
         currency,
-        location,
-        city,
-        address,
+        location: location.trim(),
+        city: city || null,
+        address: address || null,
         categoryId: Number(categoryId),
-        imageUrl,
-        otherImageUrls,
-        bedrooms,
-        bathrooms,
-        garage,
-        expenses,
-        videoUrl,
-        published, // 👈 guardamos cambio
+        imageUrl: imageUrl || null,
+        otherImageUrls: Array.isArray(otherImageUrls) ? otherImageUrls.filter(Boolean) : [],
+        bedrooms: bedrooms != null ? parseInt(bedrooms, 10) : null,
+        bathrooms: bathrooms != null ? parseInt(bathrooms, 10) : null,
+        garage: garage != null ? Boolean(garage) : null,
+        expenses: expenses != null ? parseFloat(expenses) : null,
+        videoUrl: videoUrl || null,
+        published: Boolean(published),
       },
       include: {
         category: true,
@@ -114,15 +125,21 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(request, { params }) {
+// 🔹 DELETE -> eliminar propiedad
+export async function DELETE(_req, { params }) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-  const id = params.id
+  const id = Number(params.id)
+  if (isNaN(id)) {
+    return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+  }
+
   const existing = await prisma.property.findUnique({ where: { id } })
   if (!existing) {
     return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 })
   }
+
   if (session.user.role !== 'ADMIN' && session.user.id !== existing.creatorId) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 })
   }
