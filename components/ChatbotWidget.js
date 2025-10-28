@@ -11,15 +11,20 @@ export default function ChatbotWidget() {
   const [showIntroBubble, setShowIntroBubble] = useState(false);
   const scrollRef = useRef(null);
 
-  // Globo de presentación a los 40s
+  // 🔹 Mostrar el globo después de 40s (solo si nunca fue cerrado antes)
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntroBubble(true), 40000);
-    return () => clearTimeout(timer);
+    const introDismissed = localStorage.getItem('introBubbleDismissed') === 'true';
+    if (!introDismissed) {
+      const timer = setTimeout(() => setShowIntroBubble(true), 40000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
+  // 🔹 Abrir chat
   const openChat = () => {
     setIsOpen(true);
     setShowIntroBubble(false);
+    localStorage.setItem('introBubbleDismissed', 'true'); // no mostrar más el globo
     setTimeout(() => {
       const greeting = {
         from: 'bot',
@@ -30,13 +35,25 @@ export default function ChatbotWidget() {
     }, 300);
   };
 
-  // Auto-scroll
+  // 🔹 Cerrar chat
+  const closeChat = () => {
+    setIsOpen(false);
+  };
+
+  // 🔹 Cerrar globo de presentación
+  const closeIntroBubble = () => {
+    setShowIntroBubble(false);
+    localStorage.setItem('introBubbleDismissed', 'true');
+  };
+
+  // 🔹 Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
+  // 🔹 Opciones del bot
   const handleOption = (optionText) => {
     setMessages((prev) => [...prev, { from: 'user', text: optionText }]);
     setAwaitingOption(false);
@@ -45,34 +62,19 @@ export default function ChatbotWidget() {
       let botReply;
       switch (optionText) {
         case 'Compraventa de Inmuebles':
-          botReply = {
-            from: 'bot',
-            text: 'Te ayudamos a comprar o vender inmuebles de manera segura y transparente. ¿Querés que te asesoremos?',
-          };
+          botReply = { from: 'bot', text: 'Te ayudamos a comprar o vender inmuebles de manera segura y transparente. ¿Querés que te asesoremos?' };
           break;
         case 'Alquileres':
-          botReply = {
-            from: 'bot',
-            text: 'Gestionamos alquileres de forma integral, cuidando tanto al propietario como al inquilino. ¿Querés más info?',
-          };
+          botReply = { from: 'bot', text: 'Gestionamos alquileres de forma integral, cuidando tanto al propietario como al inquilino. ¿Querés más info?' };
           break;
         case 'Asesoramiento Legal y Financiero':
-          botReply = {
-            from: 'bot',
-            text: 'Contamos con profesionales que te asesoran en lo legal y financiero para tomar las mejores decisiones. ¿Querés hablar con un especialista?',
-          };
+          botReply = { from: 'bot', text: 'Contamos con profesionales que te asesoran en lo legal y financiero para tomar las mejores decisiones. ¿Querés hablar con un especialista?' };
           break;
         case 'Administración de Propiedades':
-          botReply = {
-            from: 'bot',
-            text: 'Ofrecemos administración completa de propiedades: cobros, mantenimiento y gestión de inquilinos. ¿Querés recibir detalles?',
-          };
+          botReply = { from: 'bot', text: 'Ofrecemos administración completa de propiedades: cobros, mantenimiento y gestión de inquilinos. ¿Querés recibir detalles?' };
           break;
         case 'Tasación':
-          botReply = {
-            from: 'bot',
-            text: 'Realizamos tasaciones precisas basadas en nuestra experiencia y el mercado actual. ¿Querés coordinar una?',
-          };
+          botReply = { from: 'bot', text: 'Realizamos tasaciones precisas basadas en nuestra experiencia y el mercado actual. ¿Querés coordinar una?' };
           break;
         default:
           botReply = { from: 'bot', text: '¡Entendido! 😊' };
@@ -93,22 +95,12 @@ export default function ChatbotWidget() {
 
   const renderMessages = () =>
     messages.map((m, i) => (
-      <div
-        key={i}
-        className={`d-flex mb-2 ${
-          m.from === 'bot' ? 'justify-content-start' : 'justify-content-end'
-        }`}
-      >
+      <div key={i} className={`d-flex mb-2 ${m.from === 'bot' ? 'justify-content-start' : 'justify-content-end'}`}>
         <div
           className={`p-2 rounded position-relative ${
-            m.from === 'bot'
-              ? 'bg-light text-dark bot-bubble'
-              : 'bg-primary text-white'
+            m.from === 'bot' ? 'bg-light text-dark bot-bubble' : 'bg-primary text-white'
           }`}
-          style={{
-            maxWidth: '70%',
-            wordBreak: 'break-word',
-          }}
+          style={{ maxWidth: '70%', wordBreak: 'break-word' }}
         >
           {m.text}
         </div>
@@ -117,19 +109,15 @@ export default function ChatbotWidget() {
 
   return (
     <>
-      {/* Botón flotante */}
+      {/* 🔹 Botón flotante */}
       <div
         className="position-fixed"
-        style={{
-          bottom: '20px',
-          right: '50px',
-          zIndex: 1050,
-        }}
+        style={{ bottom: '20px', right: '50px', zIndex: 1050 }}
       >
-        {/* Globo de presentación */}
+        {/* 🔹 Globo de presentación */}
         {showIntroBubble && !isOpen && (
           <div
-            className="bg-light border rounded shadow p-2 mb-2 bot-bubble"
+            className="bg-light border rounded shadow p-2 mb-2 bot-bubble position-relative"
             style={{
               position: 'absolute',
               bottom: '100%',
@@ -138,7 +126,13 @@ export default function ChatbotWidget() {
               fontSize: '0.9rem',
             }}
           >
-            👋 ¡Hola! Soy <strong>Coni-E</strong>, la asistente virtual de <strong>Conectar Inmobiliaria</strong>.  
+            <button
+              onClick={closeIntroBubble}
+              className="btn-close position-absolute top-0 end-0 me-1 mt-1"
+              style={{ fontSize: '0.7rem' }}
+              aria-label="Cerrar"
+            ></button>
+            👋 ¡Hola! Soy <strong>Coni-E</strong>, la asistente virtual de <strong>Conectar Inmobiliaria</strong>.<br />
             ¿Querés que te ayude?
           </div>
         )}
@@ -158,7 +152,7 @@ export default function ChatbotWidget() {
         />
       </div>
 
-      {/* Ventana del chat */}
+      {/* 🔹 Ventana del chat */}
       {isOpen && (
         <div
           className="position-fixed bg-white border rounded shadow d-flex flex-column"
@@ -173,7 +167,7 @@ export default function ChatbotWidget() {
           <div className="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
             <strong>Coni-E • ChatBot</strong>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={closeChat}
               className="btn btn-sm btn-light text-primary"
               style={{ lineHeight: 1, padding: '0 6px' }}
             >
@@ -181,11 +175,7 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
-          <div
-            className="flex-grow-1 p-2 overflow-auto"
-            ref={scrollRef}
-            style={{ backgroundColor: '#f8f9fa' }}
-          >
+          <div className="flex-grow-1 p-2 overflow-auto" ref={scrollRef} style={{ backgroundColor: '#f8f9fa' }}>
             {renderMessages()}
 
             {awaitingOption && (
@@ -228,8 +218,8 @@ export default function ChatbotWidget() {
         </div>
       )}
 
-      {/* Estilos inline para el bocadillo de historieta */}
-<style jsx>{`
+      {/* 🔹 Estilos */}
+      <style jsx>{`
         .bot-bubble {
           position: relative;
         }
@@ -237,9 +227,8 @@ export default function ChatbotWidget() {
           content: '';
           position: absolute;
           bottom: -8px;
-          right: 20px; /* moved to the right side */
-          left: auto;
-          border-width: 8px 8px 0 8px; /* top right bottom left */
+          right: 20px;
+          border-width: 8px 8px 0 8px;
           border-style: solid;
           border-color: #f8f9fa transparent transparent transparent;
         }
