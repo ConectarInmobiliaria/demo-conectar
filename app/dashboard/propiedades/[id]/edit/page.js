@@ -5,23 +5,33 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function EditPropertyPage({ params }) {
-  const id = Number(params.id); // ✅ Aseguramos que sea número
-
-  if (isNaN(id)) {
-    console.error('❌ ID inválido recibido en EditPropertyPage:', params.id);
-    return (
-      <div className="container py-5">
-        <p>ID de propiedad inválido.</p>
-      </div>
-    );
-  }
-
   try {
+    // ✅ Esperamos params para evitar error de "sync dynamic APIs"
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
+
+    if (!id || typeof id !== 'string') {
+      console.error('❌ ID inválido recibido en EditPropertyPage:', id);
+      return (
+        <div className="container py-5">
+          <p>ID de propiedad inválido.</p>
+        </div>
+      );
+    }
+
+    // ✅ Buscamos la propiedad (id string)
     const prop = await prisma.property.findUnique({
       where: { id },
       include: {
         category: true,
-        creator: { select: { id: true, firstName: true, lastName: true, email: true } },
+        creator: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -35,8 +45,8 @@ export default async function EditPropertyPage({ params }) {
     }
 
     return <EditPropertyForm property={prop} />;
-  } catch (e) {
-    console.error('💥 Error al obtener la propiedad en EditPropertyPage:', e);
+  } catch (error) {
+    console.error('💥 Error al obtener la propiedad en EditPropertyPage:', error);
     return (
       <div className="container py-5">
         <p>Ocurrió un error al cargar la propiedad.</p>
@@ -44,4 +54,3 @@ export default async function EditPropertyPage({ params }) {
     );
   }
 }
-
