@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, useRef, useEffect } from 'react';
+import { useId, useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Keyboard } from 'swiper/modules';
@@ -9,126 +9,150 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import '@/styles/property-gallery.css';
 
+/**
+ * Galería profesional para mostrar imágenes de propiedades desde Supabase.
+ * Compatible con pantalla completa, navegación por teclado, miniaturas
+ * y soporte para URLs completas o relativas del bucket.
+ */
 export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
   const [fullscreen, setFullscreen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
 
-  // Manejar tecla Escape (siempre llamar el hook)
-  useEffect(() => {
-    const handleEsc = (e) => {
+  // ✅ Limpiar y normalizar URLs (soporte Supabase)
+  const normalizedImages = Array.from(
+    new Set(
+      images
+        .filter(Boolean)
+        .map((src) =>
+          src.startsWith('http')
+            ? src
+            : `https://<TU-PROJECT-ID>.supabase.co/storage/v1/object/public/${src}`
+        )
+    )
+  );
+
+  // 🔹 Cerrar con tecla Escape
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (!fullscreen) return;
       if (e.key === 'Escape') setFullscreen(false);
-    };
+      if (e.key === 'ArrowRight') swiperRef.current?.slideNext();
+      if (e.key === 'ArrowLeft') swiperRef.current?.slidePrev();
+    },
+    [fullscreen]
+  );
 
-    if (fullscreen) {
-      window.addEventListener('keydown', handleEsc);
-    }
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, [fullscreen]);
-
-  // Bloquear scroll del body (siempre llamar el hook)
   useEffect(() => {
     document.body.style.overflow = fullscreen ? 'hidden' : '';
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [fullscreen]);
+  }, [fullscreen, handleKeyDown]);
 
-  if (!images?.length) return null;
+  if (!normalizedImages.length) return null;
+
+  const openFullscreen = (index) => {
+    setActiveIndex(index);
+    setFullscreen(true);
+  };
+
+  const closeFullscreen = (e) => {
+    e?.stopPropagation?.();
+    setFullscreen(false);
+  };
 
   const goToSlide = (idx) => {
     setActiveIndex(idx);
-    if (swiperRef.current) {
-      swiperRef.current.slideTo(idx);
-    }
+    swiperRef.current?.slideTo(idx);
   };
 
   return (
-    <div className="w-full">
-      {/* Galería principal */}
-      <div className="property-gallery">
-        <Swiper
-          modules={[Navigation, Keyboard]}
-          navigation
-          keyboard={{ enabled: true }}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
-          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-        >
-          {images.map((src, idx) => (
-            <SwiperSlide key={`${galleryId}-main-${idx}`}>
-              <div
-                className="relative w-full h-full cursor-pointer"
-                onClick={() => {
-                  goToSlide(idx);
-                  setFullscreen(true);
-                }}
-              >
-                <Image
-                  src={src}
-                  alt={`${title} - imagen ${idx + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 960px"
-                  priority={idx === 0}
-                  style={{ objectFit: 'contain', backgroundColor: '#000' }}
-                />
-              </div>
-            </SwiperSlide>
+    <div className="w-full property-gallery-container">
+      {/* 🖼️ Galería principal */}
+      <Swiper
+        modules={[Navigation, Keyboard]}
+        navigation
+        keyboard={{ enabled: true }}
+        onSwiper={(swiper) => (swiperRef.current = swiper)}
+        onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+        className="property-gallery-main"
+      >
+        {normalizedImages.map((src, idx) => (
+          <SwiperSlide key={`${galleryId}-main-${idx}`}>
+            <div
+              className="relative w-full h-[420px] md:h-[480px] bg-black cursor-pointer"
+              onClick={() => openFullscreen(idx)}
+            >
+              <Image
+                src={src}
+                alt={`${title} - imagen ${idx + 1}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 960px"
+                style={{ objectFit: 'contain' }}
+                priority={idx === 0}
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* 🧩 Miniaturas */}
+      {normalizedImages.length > 1 && (
+        <div className="property-gallery-thumbs flex gap-2 mt-2 justify-center flex-wrap">
+          {normalizedImages.map((src, idx) => (
+            <div
+              key={`${galleryId}-thumb-${idx}`}
+              className={`thumb overflow-hidden rounded-md border ${
+                idx === activeIndex
+                  ? 'border-primary shadow-lg scale-105'
+                  : 'border-gray-300 opacity-80 hover:opacity-100'
+              } transition-all cursor-pointer`}
+              onClick={() => goToSlide(idx)}
+            >
+              <Image
+                src={src}
+                alt={`Miniatura ${idx + 1}`}
+                width={96}
+                height={64}
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
           ))}
-        </Swiper>
+        </div>
+      )}
 
-        {/* Thumbs */}
-        {images.length > 1 && (
-          <div className="property-gallery-thumbs">
-            {images.map((src, idx) => (
-              <div
-                key={`${galleryId}-thumb-${idx}`}
-                className={`thumb ${idx === activeIndex ? 'active' : ''}`}
-                onClick={() => goToSlide(idx)}
-              >
-                <Image
-                  src={src}
-                  alt={`Miniatura ${idx + 1}`}
-                  width={96}
-                  height={64}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Fullscreen Overlay */}
+      {/* 🌙 Fullscreen Overlay */}
       {fullscreen && (
         <div
-          className="fullscreen-overlay"
+          className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center animate-fadeIn"
           role="dialog"
           aria-modal="true"
-          onClick={() => setFullscreen(false)}
+          onClick={closeFullscreen}
         >
+          {/* Botón cerrar */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setFullscreen(false);
-            }}
-            className="close-btn"
+            onClick={closeFullscreen}
+            className="absolute top-6 right-8 text-white hover:text-gray-400 transition"
             aria-label="Cerrar galería"
           >
-            <X className="w-6 h-6" />
+            <X className="w-8 h-8" />
           </button>
 
+          {/* Swiper fullscreen */}
           <Swiper
             modules={[Navigation, Keyboard]}
             navigation
             keyboard={{ enabled: true }}
             initialSlide={activeIndex}
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
             onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-            className="flex-1 w-full"
+            className="w-full h-full"
           >
-            {images.map((src, idx) => (
+            {normalizedImages.map((src, idx) => (
               <SwiperSlide key={`${galleryId}-fullscreen-${idx}`}>
                 <div className="relative w-full h-full flex items-center justify-center">
                   <Image
@@ -136,6 +160,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
                     alt={`${title} fullscreen - ${idx + 1}`}
                     fill
                     style={{ objectFit: 'contain' }}
+                    priority={idx === activeIndex}
                   />
                 </div>
               </SwiperSlide>
