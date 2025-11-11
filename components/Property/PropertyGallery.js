@@ -11,8 +11,8 @@ import '@/styles/property-gallery.css';
 
 /**
  * Galería profesional para mostrar imágenes de propiedades desde Supabase.
- * Compatible con pantalla completa, navegación por teclado, miniaturas
- * y soporte para URLs completas o relativas del bucket.
+ * Compatible con pantalla completa, navegación por teclado, miniaturas,
+ * y soporte para URLs absolutas o relativas del bucket.
  */
 export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
@@ -20,20 +20,24 @@ export default function PropertyGallery({ images = [], title = '' }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
 
-  // ✅ Limpiar y normalizar URLs (soporte Supabase)
+  // 🧩 Tomar dominio Supabase del entorno (sin hardcodear)
+  const SUPABASE_URL =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    'https://TU-PROJECT-ID.supabase.co';
+  const BUCKET_PATH = `${SUPABASE_URL}/storage/v1/object/public`;
+
+  // ✅ Normalizar URLs
   const normalizedImages = Array.from(
     new Set(
       images
         .filter(Boolean)
         .map((src) =>
-          src.startsWith('http')
-            ? src
-            : `https://<TU-PROJECT-ID>.supabase.co/storage/v1/object/public/${src}`
+          src.startsWith('http') ? src : `${BUCKET_PATH}/${src.replace(/^\/+/, '')}`
         )
     )
   );
 
-  // 🔹 Cerrar con tecla Escape
+  // ⌨️ Navegación con teclado
   const handleKeyDown = useCallback(
     (e) => {
       if (!fullscreen) return;
@@ -87,13 +91,17 @@ export default function PropertyGallery({ images = [], title = '' }) {
               className="relative w-full h-[420px] md:h-[480px] bg-black cursor-pointer"
               onClick={() => openFullscreen(idx)}
             >
+              {/* 🔹 Imagen principal */}
               <Image
                 src={src}
-                alt={`${title} - imagen ${idx + 1}`}
+                alt={`${title || 'Propiedad'} - imagen ${idx + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, 960px"
-                style={{ objectFit: 'contain' }}
                 priority={idx === 0}
+                style={{ objectFit: 'contain', backgroundColor: '#000' }}
+                onError={(e) => {
+                  console.error('Error cargando imagen:', src);
+                }}
               />
             </div>
           </SwiperSlide>
@@ -157,7 +165,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
                 <div className="relative w-full h-full flex items-center justify-center">
                   <Image
                     src={src}
-                    alt={`${title} fullscreen - ${idx + 1}`}
+                    alt={`${title || 'Propiedad'} fullscreen - ${idx + 1}`}
                     fill
                     style={{ objectFit: 'contain' }}
                     priority={idx === activeIndex}
