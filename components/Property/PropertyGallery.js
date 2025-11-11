@@ -19,7 +19,8 @@ export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
   const [fullscreen, setFullscreen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef = useRef(null);
+  const swiperMainRef = useRef(null);
+  const swiperFullscreenRef = useRef(null);
 
   // ✅ Tomar dominio Supabase del entorno
   const SUPABASE_URL =
@@ -45,12 +46,8 @@ export default function PropertyGallery({ images = [], title = '' }) {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setFullscreen(false);
     };
-    if (fullscreen) {
-      window.addEventListener('keydown', handleEsc);
-    }
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
+    if (fullscreen) window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
   }, [fullscreen]);
 
   // 🚫 Bloquear scroll al abrir fullscreen
@@ -65,9 +62,16 @@ export default function PropertyGallery({ images = [], title = '' }) {
 
   const goToSlide = (idx) => {
     setActiveIndex(idx);
-    if (swiperRef.current) {
-      swiperRef.current.slideTo(idx);
-    }
+    swiperMainRef.current?.slideTo(idx);
+  };
+
+  const openFullscreen = (idx) => {
+    setActiveIndex(idx);
+    setFullscreen(true);
+    // Esperar a que se monte el Swiper fullscreen antes de mover el slide
+    setTimeout(() => {
+      swiperFullscreenRef.current?.slideTo(idx);
+    }, 100);
   };
 
   return (
@@ -78,17 +82,14 @@ export default function PropertyGallery({ images = [], title = '' }) {
           modules={[Navigation, Keyboard]}
           navigation
           keyboard={{ enabled: true }}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          onSwiper={(swiper) => (swiperMainRef.current = swiper)}
           onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
         >
           {normalizedImages.map((src, idx) => (
             <SwiperSlide key={`${galleryId}-main-${idx}`}>
               <div
                 className="relative w-full h-[420px] md:h-[480px] bg-black cursor-pointer"
-                onClick={() => {
-                  goToSlide(idx);
-                  setFullscreen(true);
-                }}
+                onClick={() => openFullscreen(idx)}
               >
                 <Image
                   src={src}
@@ -156,6 +157,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
             navigation
             keyboard={{ enabled: true }}
             initialSlide={activeIndex}
+            onSwiper={(swiper) => (swiperFullscreenRef.current = swiper)}
             onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
             className="flex-1 w-full"
           >
