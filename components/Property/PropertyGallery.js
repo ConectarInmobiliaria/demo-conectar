@@ -11,9 +11,9 @@ import '@/styles/property-gallery.css';
 
 /**
  * Galería profesional de propiedades
- * - Soporta URLs de Supabase (relativas o completas)
+ * - URLs de Supabase o absolutas
  * - Miniaturas sincronizadas
- * - Modo fullscreen con navegación
+ * - Modo fullscreen real con navegación
  */
 export default function PropertyGallery({ images = [], title = '' }) {
   const galleryId = useId();
@@ -28,7 +28,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
     'https://TU-PROJECT-ID.supabase.co';
   const BUCKET_BASE = `${SUPABASE_URL}/storage/v1/object/public`;
 
-  // 🧩 Normalizar imágenes (eliminar nulos y duplicados)
+  // 🧩 Normalizar imágenes
   const normalizedImages = Array.from(
     new Set(
       images
@@ -41,11 +41,9 @@ export default function PropertyGallery({ images = [], title = '' }) {
     )
   );
 
-  // ⌨️ Cerrar con tecla Escape
+  // ⌨️ Cerrar con Escape
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') setFullscreen(false);
-    };
+    const handleEsc = (e) => e.key === 'Escape' && setFullscreen(false);
     if (fullscreen) window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [fullscreen]);
@@ -53,9 +51,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
   // 🚫 Bloquear scroll al abrir fullscreen
   useEffect(() => {
     document.body.style.overflow = fullscreen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => (document.body.style.overflow = '');
   }, [fullscreen]);
 
   if (!normalizedImages.length) return null;
@@ -68,10 +64,8 @@ export default function PropertyGallery({ images = [], title = '' }) {
   const openFullscreen = (idx) => {
     setActiveIndex(idx);
     setFullscreen(true);
-    // Esperar a que se monte el Swiper fullscreen antes de mover el slide
-    setTimeout(() => {
-      swiperFullscreenRef.current?.slideTo(idx);
-    }, 100);
+    // Sincronizar tras el montaje del Swiper fullscreen
+    setTimeout(() => swiperFullscreenRef.current?.slideTo(idx), 150);
   };
 
   return (
@@ -98,7 +92,6 @@ export default function PropertyGallery({ images = [], title = '' }) {
                   sizes="(max-width: 768px) 100vw, 960px"
                   priority={idx === 0}
                   style={{ objectFit: 'contain', backgroundColor: '#000' }}
-                  onError={() => console.error('Error cargando imagen:', src)}
                 />
               </div>
             </SwiperSlide>
@@ -134,7 +127,7 @@ export default function PropertyGallery({ images = [], title = '' }) {
       {/* 🌙 Fullscreen Overlay */}
       {fullscreen && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center animate-fadeIn"
           role="dialog"
           aria-modal="true"
           onClick={() => setFullscreen(false)}
@@ -152,29 +145,31 @@ export default function PropertyGallery({ images = [], title = '' }) {
           </button>
 
           {/* Swiper fullscreen */}
-          <Swiper
-            modules={[Navigation, Keyboard]}
-            navigation
-            keyboard={{ enabled: true }}
-            initialSlide={activeIndex}
-            onSwiper={(swiper) => (swiperFullscreenRef.current = swiper)}
-            onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-            className="flex-1 w-full"
-          >
-            {normalizedImages.map((src, idx) => (
-              <SwiperSlide key={`${galleryId}-fullscreen-${idx}`}>
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <Image
-                    src={src}
-                    alt={`${title} fullscreen - ${idx + 1}`}
-                    fill
-                    style={{ objectFit: 'contain' }}
-                    priority={idx === activeIndex}
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="w-full h-full flex items-center justify-center">
+            <Swiper
+              modules={[Navigation, Keyboard]}
+              navigation
+              keyboard={{ enabled: true }}
+              initialSlide={activeIndex}
+              onSwiper={(swiper) => (swiperFullscreenRef.current = swiper)}
+              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+              className="w-full h-full"
+            >
+              {normalizedImages.map((src, idx) => (
+                <SwiperSlide key={`${galleryId}-fullscreen-${idx}`}>
+                  <div className="relative w-full h-screen flex items-center justify-center">
+                    <Image
+                      src={src}
+                      alt={`${title} fullscreen - ${idx + 1}`}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                      priority={idx === activeIndex}
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </div>
       )}
     </div>
