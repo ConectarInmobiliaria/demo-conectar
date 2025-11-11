@@ -13,11 +13,23 @@ import 'swiper/css/thumbs';
 import '@/../public/styles/swiper-gallery.css';
 
 export default function SwiperGallery({ images = [], title = '' }) {
-  const uniqueImages = Array.from(new Set(images.filter(Boolean)));
+  // 🔹 Asegurar URLs válidas y sin duplicados
+  const uniqueImages = Array.from(
+    new Set(
+      images
+        .filter(Boolean)
+        .map((src) =>
+          src.startsWith('http')
+            ? src
+            : `https://<TU-PROJECT-ID>.supabase.co/storage/v1/object/public/${src}`
+        )
+    )
+  );
+
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [fullscreenIndex, setFullscreenIndex] = useState(null);
 
-  // 🔹 Atajos de teclado para navegación
+  // 🔹 Atajos de teclado
   const handleKeyDown = useCallback(
     (e) => {
       if (fullscreenIndex === null) return;
@@ -52,7 +64,7 @@ export default function SwiperGallery({ images = [], title = '' }) {
     <div className="card p-4 shadow-sm mb-5">
       <h5 className="mb-3 text-center text-primary">Galería de Imágenes</h5>
 
-      {/* Galería principal */}
+      {/* Swiper principal */}
       <Swiper
         modules={[Navigation, Pagination, Zoom, Thumbs]}
         spaceBetween={10}
@@ -83,6 +95,7 @@ export default function SwiperGallery({ images = [], title = '' }) {
                 sizes="(max-width: 768px) 100vw, 50vw"
                 style={{ objectFit: 'contain' }}
                 className="rounded"
+                priority={i === 0}
               />
             </div>
           </SwiperSlide>
@@ -125,24 +138,22 @@ export default function SwiperGallery({ images = [], title = '' }) {
         </div>
       )}
 
-      {/* 🔍 Fullscreen / Lightbox */}
+      {/* Fullscreen / Lightbox */}
       {fullscreenIndex !== null && (
         <div
           className="fullscreen-overlay"
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
+            inset: 0,
             backgroundColor: 'rgba(0,0,0,0.95)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            animation: 'fadeIn 0.3s ease-in-out',
           }}
         >
-          {/* Botón cerrar */}
+          {/* Cerrar */}
           <button
             onClick={closeFullscreen}
             style={{
@@ -154,14 +165,13 @@ export default function SwiperGallery({ images = [], title = '' }) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              zIndex: 10000,
             }}
             aria-label="Cerrar"
           >
             ✕
           </button>
 
-          {/* Botón anterior */}
+          {/* Anterior */}
           {uniqueImages.length > 1 && (
             <button
               onClick={prevImage}
@@ -175,7 +185,6 @@ export default function SwiperGallery({ images = [], title = '' }) {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                userSelect: 'none',
               }}
               aria-label="Anterior"
             >
@@ -183,7 +192,7 @@ export default function SwiperGallery({ images = [], title = '' }) {
             </button>
           )}
 
-          {/* Imagen actual */}
+          {/* Imagen */}
           <div
             className="position-relative"
             style={{
@@ -199,10 +208,11 @@ export default function SwiperGallery({ images = [], title = '' }) {
               fill
               sizes="100vw"
               style={{ objectFit: 'contain' }}
+              priority
             />
           </div>
 
-          {/* Botón siguiente */}
+          {/* Siguiente */}
           {uniqueImages.length > 1 && (
             <button
               onClick={nextImage}
@@ -216,7 +226,6 @@ export default function SwiperGallery({ images = [], title = '' }) {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                userSelect: 'none',
               }}
               aria-label="Siguiente"
             >
