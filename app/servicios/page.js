@@ -1,4 +1,3 @@
-// app/servicios/page.js
 import { FadeInHeadingClient } from '@/components/Motion/FadeInHeadingClient';
 import { FadeInSectionClient } from '@/components/Motion/FadeInSectionClient';
 import {
