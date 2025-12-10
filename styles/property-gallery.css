@@ -1,105 +1,406 @@
-/* property-gallery.css */
+/* ========================================
+   🎨 PROPERTY GALLERY - ESTILOS PROFESIONALES
+   ======================================== */
 
-/* Galería principal */
-.property-gallery {
-  width: 100%;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+/* 🎯 Variables CSS personalizadas */
+:root {
+  --gallery-primary: #0d6efd;
+  --gallery-shadow: rgba(0, 0, 0, 0.1);
+  --gallery-shadow-hover: rgba(0, 0, 0, 0.15);
+  --gallery-border-radius: 12px;
+  --gallery-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.property-gallery .swiper {
-  width: 100%;
-  height: 400px;
+/* 🖼️ Contenedor principal de galería */
+.property-gallery-main {
+  position: relative;
+  border-radius: var(--gallery-border-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px var(--gallery-shadow);
+  background: #000;
+}
+
+/* 🎠 Swiper - Ajustes generales */
+.property-gallery-main .swiper {
+  border-radius: var(--gallery-border-radius);
+  height: 420px;
 }
 
 @media (max-width: 768px) {
-  .property-gallery .swiper {
-    height: 250px;
+  .property-gallery-main .swiper {
+    height: 280px;
   }
 }
 
-.property-gallery .swiper-slide {
+/* 🎯 Slides individuales */
+.property-gallery-main .swiper-slide {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  background: #000;
 }
 
-.property-gallery .swiper-slide img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
+/* 🔘 Botones de navegación - Galería principal */
+.property-gallery-main .swiper-button-next,
+.property-gallery-main .swiper-button-prev {
+  background: rgba(255, 255, 255, 0.9);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--gallery-primary);
+  transition: var(--gallery-transition);
+  box-shadow: 0 2px 8px var(--gallery-shadow);
 }
 
-/* Thumbs */
+.property-gallery-main .swiper-button-next:hover,
+.property-gallery-main .swiper-button-prev:hover {
+  background: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px var(--gallery-shadow-hover);
+}
+
+.property-gallery-main .swiper-button-next::after,
+.property-gallery-main .swiper-button-prev::after {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* 📊 Contador de imágenes */
+.gallery-counter {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
+/* 🖼️ Contenedor de miniaturas */
 .property-gallery-thumbs {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  gap: 8px;
+  margin-top: 12px;
   overflow-x: auto;
+  padding: 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gallery-primary) #e9ecef;
 }
 
-.property-gallery-thumbs .thumb {
+/* Scrollbar personalizado - Webkit */
+.property-gallery-thumbs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.property-gallery-thumbs::-webkit-scrollbar-track {
+  background: #e9ecef;
+  border-radius: 3px;
+}
+
+.property-gallery-thumbs::-webkit-scrollbar-thumb {
+  background: var(--gallery-primary);
+  border-radius: 3px;
+  transition: var(--gallery-transition);
+}
+
+.property-gallery-thumbs::-webkit-scrollbar-thumb:hover {
+  background: #0b5ed7;
+}
+
+/* 🎴 Miniaturas individuales */
+.gallery-thumb {
   position: relative;
-  width: 96px;
-  height: 64px;
-  cursor: pointer;
-  border: 2px solid transparent;
+  width: 100px;
+  height: 70px;
   flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: var(--gallery-transition);
+  box-shadow: 0 2px 4px var(--gallery-shadow);
 }
 
-.property-gallery-thumbs .thumb.active {
-  border-color: #2563eb;
+.gallery-thumb:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px var(--gallery-shadow-hover);
 }
 
-.property-gallery-thumbs .thumb img {
+.gallery-thumb.active {
+  border-color: var(--gallery-primary);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.gallery-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: var(--gallery-transition);
 }
 
-/* -------------------------------
-   🔥 Pantalla completa overlay
--------------------------------- */
-.fullscreen-overlay {
+.gallery-thumb:hover img {
+  transform: scale(1.1);
+}
+
+/* 🌙 LIGHTBOX FULLSCREEN */
+.fullscreen-lightbox {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.9);
-  z-index: 9999; /* por encima de todo */
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: fadeIn 0.3s ease;
 }
 
-.fullscreen-overlay img {
-  max-width: 95%;
-  max-height: 95%;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* Botón cerrar */
-.fullscreen-overlay .close-btn {
+/* Animación de zoom */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ✕ Botón cerrar */
+.fullscreen-lightbox .close-btn {
   position: absolute;
   top: 20px;
-  right: 30px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 2rem;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
   cursor: pointer;
-  z-index: 10000;
-  transition: transform 0.2s;
+  z-index: 10001;
+  transition: var(--gallery-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
 }
 
-.fullscreen-overlay .close-btn:hover {
-  transform: scale(1.2);
+.fullscreen-lightbox .close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg) scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 🎠 Swiper fullscreen */
+.fullscreen-lightbox .swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* 🔘 Botones de navegación - Fullscreen */
+.fullscreen-lightbox .swiper-button-next,
+.fullscreen-lightbox .swiper-button-prev {
+  background: rgba(255, 255, 255, 0.1);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: white;
+  backdrop-filter: blur(4px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: var(--gallery-transition);
+}
+
+.fullscreen-lightbox .swiper-button-next:hover,
+.fullscreen-lightbox .swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.fullscreen-lightbox .swiper-button-next::after,
+.fullscreen-lightbox .swiper-button-prev::after {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 📊 Contador fullscreen */
+.fullscreen-counter {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 10001;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  user-select: none;
+}
+
+/* ⏳ Preloader / Spinner */
+.image-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  animation: fadeIn 0.2s ease;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--gallery-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 🔍 Zoom container */
+.swiper-zoom-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* 📱 RESPONSIVE - Mobile */
+@media (max-width: 768px) {
+  .gallery-counter {
+    bottom: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .fullscreen-counter {
+    bottom: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .gallery-thumb {
+    width: 80px;
+    height: 56px;
+  }
+
+  .property-gallery-main .swiper-button-next,
+  .property-gallery-main .swiper-button-prev {
+    width: 36px;
+    height: 36px;
+  }
+
+  .property-gallery-main .swiper-button-next::after,
+  .property-gallery-main .swiper-button-prev::after {
+    font-size: 16px;
+  }
+
+  .fullscreen-lightbox .swiper-button-next,
+  .fullscreen-lightbox .swiper-button-prev {
+    width: 44px;
+    height: 44px;
+  }
+
+  .fullscreen-lightbox .swiper-button-next::after,
+  .fullscreen-lightbox .swiper-button-prev::after {
+    font-size: 20px;
+  }
+
+  .fullscreen-lightbox .close-btn {
+    width: 40px;
+    height: 40px;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+  }
+}
+
+/* 📱 RESPONSIVE - Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .property-gallery-main .swiper {
+    height: 360px;
+  }
+
+  .gallery-thumb {
+    width: 90px;
+    height: 63px;
+  }
+}
+
+/* 🖥️ RESPONSIVE - Desktop grande */
+@media (min-width: 1200px) {
+  .property-gallery-main .swiper {
+    height: 480px;
+  }
+}
+
+/* ♿ ACCESIBILIDAD */
+.gallery-thumb:focus,
+.fullscreen-lightbox .close-btn:focus {
+  outline: 2px solid var(--gallery-primary);
+  outline-offset: 2px;
+}
+
+/* 🎨 Modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+  .property-gallery-main {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .gallery-thumb {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 🎭 Transiciones suaves para todo */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 📐 Utilidades */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* 🎯 Estados de carga */
+.gallery-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.gallery-loaded {
+  animation: zoomIn 0.4s ease;
 }
