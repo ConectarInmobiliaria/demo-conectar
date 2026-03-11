@@ -420,7 +420,6 @@ export default async function HomePage() {
         </FadeInSectionClient>
       </section>
 
-      {/* 🎥 Sección 5: Video Institucional */}
       <section className="container py-5">
         <FadeInSectionClient>
           <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
