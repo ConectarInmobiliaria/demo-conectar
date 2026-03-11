@@ -439,7 +439,7 @@ export default async function HomePage() {
                   poster="/slides/slide1.jpg"
                   style={{ objectFit: 'contain' }}
                 >
-                  <source src="/pao-navidad_subtitulado.mp4" type="video/mp4" />
+                  <source src="/mujer.mp4" type="video/mp4" />
                   Tu navegador no soporta el elemento de video.
                 </video>
               </div>
