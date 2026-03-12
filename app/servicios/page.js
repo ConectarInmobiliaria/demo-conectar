@@ -93,7 +93,7 @@ export default function ServiciosPage() {
                       style={{
                         width: 68,
                         height: 68,
-                        backgroundColor: '#eaf7ee', // suave fondo verde claro
+                        backgroundColor: '#eaf7ee', 
                         flexShrink: 0,
                       }}
                       aria-hidden

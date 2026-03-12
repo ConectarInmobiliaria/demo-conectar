@@ -447,7 +447,7 @@ export default async function HomePage() {
         </FadeInSectionClient>
       </section>
 
-      {/* 🏆 Sección 6: Certificaciones y Miembros */}
+      {/*  */}
       <section className="container py-5">
         <FadeInSectionClient>
           <div className="text-center mb-4">
