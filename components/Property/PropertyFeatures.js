@@ -28,7 +28,7 @@ export default function PropertyFeatures({ property }) {
     squareMeters,
   } = property || {};
 
-  // Precio: si <= 0 -> "Consultar"
+  // ── Precio ────────────────────────────────────────────────────────────────
   const hasPrice = price != null && Number(price) > 0;
   const formattedPrice = hasPrice
     ? `${currency === 'USD' ? 'u$d' : '$'} ${Number(price).toLocaleString('es-AR', {
@@ -37,7 +37,7 @@ export default function PropertyFeatures({ property }) {
       })}`
     : 'Consultar';
 
-  // Expensas (siempre en la moneda definida)
+  // ── Expensas ──────────────────────────────────────────────────────────────
   const hasExpenses = expenses != null && Number(expenses) > 0;
   const formattedExpenses = hasExpenses
     ? `${currency === 'USD' ? 'u$d' : '$'} ${Number(expenses).toLocaleString('es-AR', {
@@ -45,123 +45,118 @@ export default function PropertyFeatures({ property }) {
       })}`
     : null;
 
-  // Helpers para mostrar filas
-  const showBedrooms = bedrooms != null && Number(bedrooms) > 0;
-  const showBathrooms = bathrooms != null && Number(bathrooms) > 0;
-  const showGarage = garage !== null && garage !== undefined;
-  const showLocation =
-    (location && String(location).trim() !== '') ||
-    (city && city.trim() !== '') ||
-    (address && address.trim() !== '');
-  const showDimensions =
+  // ── Ubicación ─────────────────────────────────────────────────────────────
+  const locationText = address
+    ? `${address}${city ? `, ${city}` : ''}`
+    : location || city || null;
+
+  // ── Superficie ────────────────────────────────────────────────────────────
+  const hasDimensions =
     (squareMeters != null && Number(squareMeters) > 0) ||
     (width != null && length != null);
 
+  const surfaceText = hasDimensions
+    ? squareMeters && Number(squareMeters) > 0
+      ? `${Number(squareMeters)} m²`
+      : `${Number(width)} m × ${Number(length)} m ≈ ${(Number(width) * Number(length)).toFixed(2)} m²`
+    : null;
+
+  // ── Filas de características ──────────────────────────────────────────────
+  const features = [
+    {
+      show: true,
+      icon: <FaMoneyBillAlt className="text-success" aria-hidden="true" />,
+      label: 'Precio',
+      value: formattedPrice,
+    },
+    {
+      show: !!locationText,
+      icon: <FaMapMarkerAlt className="text-danger" aria-hidden="true" />,
+      label: 'Ubicación',
+      value: locationText,
+    },
+    {
+      show: !!surfaceText,
+      icon: <FaRulerCombined className="text-primary" aria-hidden="true" />,
+      label: 'Superficie',
+      value: surfaceText,
+    },
+    {
+      show: !!category?.name,
+      icon: null,
+      label: 'Categoría',
+      value: category?.name,
+    },
+    {
+      show: bedrooms != null && Number(bedrooms) > 0,
+      icon: <FaBed className="text-dark" aria-hidden="true" />,
+      label: 'Dormitorios',
+      value: bedrooms,
+    },
+    {
+      show: bathrooms != null && Number(bathrooms) > 0,
+      icon: <FaBath className="text-info" aria-hidden="true" />,
+      label: 'Baños',
+      value: bathrooms,
+    },
+    {
+      show: garage !== null && garage !== undefined,
+      icon: <FaCar className="text-secondary" aria-hidden="true" />,
+      label: 'Garage',
+      value: garage ? 'Sí' : 'No',
+    },
+    {
+      show: !!formattedExpenses,
+      icon: <FaMoneyBillAlt className="text-muted" aria-hidden="true" />,
+      label: 'Expensas',
+      value: formattedExpenses,
+    },
+  ].filter((f) => f.show);
+
   return (
     <div className="card p-4 shadow-sm mb-4">
-      <h5 className="text-dark mb-3">Detalles de la Propiedad</h5>
+      {/* h2 porque es una sub-sección dentro del h1 de la página de detalle */}
+      <h2 className="h5 text-dark mb-3">Detalles de la Propiedad</h2>
 
-      {/* Descripción breve */}
+      {/* Descripción */}
       {description && (
         <p className="mb-4 text-muted" style={{ whiteSpace: 'pre-line' }}>
           {description}
         </p>
       )}
 
-      <div className="row gy-3">
-        {/* Precio */}
-        <div className="col-md-6 d-flex align-items-center">
-          <FaMoneyBillAlt className="me-2 text-success" />
-          <strong className="me-1">Precio:</strong>
-          <span>{formattedPrice}</span>
+      {/*
+        <dl> es la etiqueta semántica correcta para listas de
+        término → definición/valor, exactamente lo que son estas características.
+        Screen readers lo anuncian como "lista de definiciones".
+      */}
+      <dl className="row gy-3 mb-0">
+        {features.map(({ icon, label, value }) => (
+          <div key={label} className="col-md-6 d-flex align-items-center gap-2">
+            {icon && <span aria-hidden="true">{icon}</span>}
+            <dt className="mb-0 me-1 fw-bold" style={{ minWidth: 'max-content' }}>
+              {label}:
+            </dt>
+            <dd className="mb-0 text-muted">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* Video: va separado porque es un link, no un par término/valor */}
+      {videoUrl && (
+        <div className="d-flex align-items-center gap-2 mt-3">
+          <FaVideo className="text-danger" aria-hidden="true" />
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-decoration-underline"
+            aria-label="Ver video de la propiedad (abre en nueva pestaña)"
+          >
+            Ver video de la propiedad
+          </a>
         </div>
-
-        {/* Ubicación */}
-        {showLocation && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaMapMarkerAlt className="me-2 text-danger" />
-            <strong className="me-1">Ubicación:</strong>
-            <span>
-              {address ? `${address}${city ? ', ' + city : ''}` : location || city || '-'}
-            </span>
-          </div>
-        )}
-
-        {/* Superficie */}
-        {showDimensions && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaRulerCombined className="me-2 text-primary" />
-            <strong className="me-1">Superficie:</strong>
-            <span>
-              {squareMeters && Number(squareMeters) > 0
-                ? `${Number(squareMeters)} m²`
-                : width && length
-                ? `${Number(width)} m × ${Number(length)} m ≈ ${(Number(width) * Number(length)).toFixed(2)} m²`
-                : '-'}
-            </span>
-          </div>
-        )}
-
-        {/* Categoría */}
-        {category && (
-          <div className="col-md-6 d-flex align-items-center">
-            <strong className="me-1">Categoría:</strong>
-            <span>{category.name}</span>
-          </div>
-        )}
-
-        {/* Dormitorios */}
-        {showBedrooms && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaBed className="me-2 text-dark" />
-            <strong className="me-1">Dormitorios:</strong>
-            <span>{bedrooms}</span>
-          </div>
-        )}
-
-        {/* Baños */}
-        {showBathrooms && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaBath className="me-2 text-info" />
-            <strong className="me-1">Baños:</strong>
-            <span>{bathrooms}</span>
-          </div>
-        )}
-
-        {/* Garage */}
-        {showGarage && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaCar className="me-2 text-secondary" />
-            <strong className="me-1">Garage:</strong>
-            <span>{garage ? 'Sí' : 'No'}</span>
-          </div>
-        )}
-
-        {/* Expensas */}
-        {formattedExpenses && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaMoneyBillAlt className="me-2 text-muted" />
-            <strong className="me-1">Expensas:</strong>
-            <span>{formattedExpenses}</span>
-          </div>
-        )}
-
-        {/* Video */}
-        {videoUrl && (
-          <div className="col-md-6 d-flex align-items-center">
-            <FaVideo className="me-2 text-danger" />
-            <strong className="me-1">Video:</strong>
-            <a
-              href={videoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-decoration-underline"
-            >
-              Ver video
-            </a>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
