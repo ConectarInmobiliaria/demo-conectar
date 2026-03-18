@@ -9,7 +9,7 @@ export default function Footer() {
         <p className="mb-2">© {new Date().getFullYear()} Inmobiliaria Conectar. Todos los derechos reservados.</p>
         <Link href="https://www.yacon.ar" className="text-white text-decoration-none d-inline-flex align-items-center justify-content-center">
           <span>Desarrollado por: </span>
-          <Image src="/firma-yacon" alt="Firma" width={80} height={25} className="me-2" />
+          <Image src="/firma-yacon.png" alt="Firma" width={80} height={25} className="me-2" />
         </Link>
       </div>
     </footer>
